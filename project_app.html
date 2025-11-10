@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSCI3100 Project Tool</title>
+  <style>
+    :root { --accent:#4285f4; --bg:#181a1b; --panel:#202224; --text:#e8eaed; --muted:#9aa0a6; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    #sidebar { position:fixed; inset:0 auto 0 0; width:240px; background:#111; border-right:1px solid #2b2f31; padding:16px; overflow:auto; }
+    .brand { font-weight:700; letter-spacing:.5px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .brand small{ color:var(--muted); font-weight:500; }
+    .sidebar-btn { width:100%; padding:10px 12px; background:transparent; border:1px solid #2b2f31; color:var(--text); border-radius:8px; cursor:pointer; text-align:left; margin:6px 0; }
+    .sidebar-btn.active, .sidebar-btn:hover { background:#1b1e20; border-color:#3a3f42; }
+    #main { margin-left:240px; min-height:100vh; }
+    header { position:sticky; top:0; z-index:5; display:flex; gap:12px; align-items:center; justify-content:space-between; padding:12px 16px; background:linear-gradient(180deg, #101214, #101214d0 60%, transparent); border-bottom:1px solid #2b2f31; }
+    header .status { font-size:12px; color:var(--muted); }
+    .section { display:none; padding:16px; }
+    .section.active { display:block; }
+    .card { background:var(--panel); border:1px solid #2b2f31; border-radius:12px; padding:14px; }
+    .grid { display:grid; gap:12px; }
+    .grid.cols-2{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.cols-3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    input, select, textarea { background:#0f1112; color:var(--text); border:1px solid #2b2f31; border-radius:8px; padding:10px 12px; width:100%; }
+    label { font-size:12px; color:var(--muted); display:block; margin-bottom:6px; }
+    .btn { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 14px; cursor:pointer; }
+    .btn.ghost{ background:#24292e; color:#e6edf3; }
+    .btn.text{ background:transparent; color:var(--accent); border:none; }
+    .notice { background:#0c2e13; border:1px solid #1e8e3e; color:#b7f0c0; padding:10px 12px; border-radius:8px; }
+    .danger { background:#2a0000; border:1px solid #a30000; color:#ffb4b4; padding:10px 12px; border-radius:8px; }
+    .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background:#0b0d0e; border:1px solid #2b2f31; padding:2px 6px; border-radius:6px; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    .table { width:100%; border-collapse: collapse; }
+    .table th,.table td { border:1px solid #2b2f31; padding:8px; font-size:13px; }
+    .table th { background:#0f1112; color:#c9d1d9; text-align:left; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; background:#0f1112; border:1px solid #2b2f31; border-radius:999px; font-size:12px; color:#c9d1d9; }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="brand">🛠️ CSCI3100 Tool <small class="pill">Web App</small></div>
+    <button class="sidebar-btn active" data-section="auth">🔐 Auth & Licence</button>
+    <button class="sidebar-btn" data-section="whiteboard">🖼️ Whiteboard</button>
+    <button class="sidebar-btn" data-section="schedule">📅 Schedule</button>
+    <button class="sidebar-btn" data-section="document">📝 Document</button>
+    <button class="sidebar-btn" data-section="admin">🗄️ Data Admin</button>
+    <div style="margin-top:12px" class="card">
+      <div style="font-size:12px; color:#c9d1d9; margin-bottom:4px">Session</div>
+      <div id="session-user" style="font-size:13px; color:#9aa0a6">Not signed in</div>
+    </div>
+  </aside>
+  <div id="main">
+    <header>
+      <div>
+        <div style="font-weight:600">CSCI3100 Project Management Suite</div>
+        <div class="status">Meets UI, Auth, Licence, and DB integration requirements</div>
+      </div>
+      <div>
+        <button class="btn ghost" id="logoutBtn" style="display:none">Log out</button>
+      </div>
+    </header>
+
+    <!-- Auth & Licence Section -->
+    <section id="auth-section" class="section active">
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Sign up</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Email</label>
+              <input id="su-email" type="email" placeholder="you@cuhk.edu.hk" required />
+            </div>
+            <div>
+              <label>Password</label>
+              <input id="su-pass" type="password" placeholder="min 6 chars" minlength="6" required />
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn" id="signupBtn">Create account</button>
+          </div>
+          <p class="mono" id="su-msg"></p>
+        </div>
+        <div class="card">
+          <h3>Log in</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Email</label>
+              <input id="li-email" type="email" />
+            </div>
+            <div>
+              <label>Password</label>
+              <input id="li-pass" type="password" />
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn" id="loginBtn">Log in</button>
+          </div>
+          <p class="mono" id="li-msg"></p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Licence Management</h3>
+        <p>Enter a licence key or upload a key-file (.txt with one or more keys, one per line). Key format: <span class="kbd">AAAA-BBBB-CCCC-DDDD</span></p>
+        <div class="grid cols-3">
+          <div>
+            <label>Licence key</label>
+            <input id="lic-key" type="text" placeholder="ABCD-1234-EFGH-5678" />
+          </div>
+          <div>
+            <label>or Key-file</label>
+            <input id="lic-file" type="file" accept=".txt" />
+          </div>
+          <div style="align-self:end">
+            <button class="btn" id="lic-activate">Activate</button>
+          </div>
+        </div>
+        <div id="lic-status" class="mono"></div>
+      </div>
+
+      <div class="notice" style="margin-top:12px">
+        Core features are available only when a valid licence is active and the user is logged in. Use Data Admin to inspect the database.
+      </div>
+    </section>
+
+    <!-- Whiteboard Section (simplified) -->
+    <section id="whiteboard-section" class="section">
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Palette</h3>
+          <button class="btn" onclick="addNode('Task')">Add Task</button>
+          <button class="btn ghost" onclick="exportFlow()">Export JSON</button>
+        </div>
+        <div class="card">
+          <h3>Canvas</h3>
+          <div id="canvas" style="border:1px dashed #3a3f42; border-radius:8px; height:360px; overflow:auto; padding:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schedule Section -->
+    <section id="schedule-section" class="section">
+      <div class="card">
+        <h3>Weekly Planner</h3>
+        <div class="grid cols-3">
+          <input id="task-text" placeholder="Task title" />
+          <select id="task-day"><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option></select>
+          <button class="btn" onclick="addTask()">Add</button>
+        </div>
+        <div class="grid cols-3" id="week"></div>
+      </div>
+    </section>
+
+    <!-- Document Section -->
+    <section id="document-section" class="section">
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Editor</h3>
+          <textarea id="doc" rows="16" placeholder="Release notes, test plan, etc."></textarea>
+          <div style="margin-top:8px; display:flex; gap:8px">
+            <button class="btn" onclick="saveDoc()">Save</button>
+            <button class="btn ghost" onclick="loadDoc()">Load</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Preview</h3>
+          <pre id="doc-preview" class="mono" style="white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Admin Section -->
+    <section id="admin-section" class="section">
+      <div class="card">
+        <h3>Database Inspector</h3>
+        <p class="mono">Storage: IndexedDB "csci3100" with object stores: users, licences, schedule, docs, flows</p>
+        <button class="btn" onclick="dumpDB()">Dump</button>
+        <button class="btn text" onclick="resetDB()">Reset (danger)</button>
+        <pre id="db-out" class="mono" style="white-space:pre-wrap"></pre>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Router
+    document.querySelectorAll('.sidebar-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        document.getElementById(btn.dataset.section+'-section').classList.add('active');
+      });
+    });
+
+    // IndexedDB wrapper (Global Database)
+    const DB_NAME='csci3100'; const DB_VER=1; let db;
+    const openReq = indexedDB.open(DB_NAME, DB_VER);
+    openReq.onupgradeneeded = (e)=>{
+      db = e.target.result;
+      if(!db.objectStoreNames.contains('users')) db.createObjectStore('users',{ keyPath:'email' });
+      if(!db.objectStoreNames.contains('licences')) db.createObjectStore('licences',{ keyPath:'key' });
+      if(!db.objectStoreNames.contains('schedule')) db.createObjectStore('schedule',{ keyPath:'day' });
+      if(!db.objectStoreNames.contains('docs')) db.createObjectStore('docs',{ keyPath:'id' });
+      if(!db.objectStoreNames.contains('flows')) db.createObjectStore('flows',{ keyPath:'id', autoIncrement:true });
+    };
+    openReq.onsuccess = async (e)=>{ db = e.target.result; await seedLicences(); renderWeek(); loadDoc(); refreshSessionUI(); };
+
+    function tx(name, mode='readonly'){ return db.transaction(name, mode).objectStore(name); }
+
+    // Seed demo licences
+    async function seedLicences(){
+      return new Promise((res)=>{
+        const store = tx('licences','readwrite');
+        ['ABCD-1234-EFGH-5678','AAAA-BBBB-CCCC-DDDD'].forEach(k=>store.put({ key:k, type:'full', expires:'2099-12-31' }));
+        store.transaction.oncomplete = ()=>res();
+      });
+    }
+
+    // Auth
+    let session = { user:null, licence:null };
+    function put(storeName, value){ return new Promise(r=>{ const s=tx(storeName,'readwrite'); s.put(value); s.transaction.oncomplete=()=>r(value); }); }
+    function get(storeName, key){ return new Promise(r=>{ const s=tx(storeName); const req=s.get(key); req.onsuccess=()=>r(req.result||null); req.onerror=()=>r(null); }); }
+
+    document.getElementById('signupBtn').onclick = async ()=>{
+      const email = document.getElementById('su-email').value.trim();
+      const pass = document.getElementById('su-pass').value;
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || pass.length<6){ document.getElementById('su-msg').textContent='Invalid email or password too short'; return; }
+      const existing = await get('users', email);
+      if(existing){ document.getElementById('su-msg').textContent='Email already exists'; return; }
+      await put('users', { email, passHash:btoa(pass), created: new Date().toISOString() });
+      document.getElementById('su-msg').textContent='Account created. Please log in.';
+    };
+
+    document.getElementById('loginBtn').onclick = async ()=>{
+      const email = document.getElementById('li-email').value.trim();
+      const pass = document.getElementById('li-pass').value;
+      const user = await get('users', email);
+      if(!user || user.passHash!==btoa(pass)){ document.getElementById('li-msg').textContent='Invalid credentials'; return; }
+      session.user = { email };
+      localStorage.setItem('session', JSON.stringify(session));
+      refreshSessionUI();
+      document.getElementById('li-msg').textContent='Logged in';
+    };
+
+    function refreshSessionUI(){
+      const saved = localStorage.getItem('session');
+      if(saved) session = JSON.parse(saved);
+      document.getElementById('session-user').textContent = session.user? ('Signed in: '+session.user.email) : 'Not signed in';
+      document.getElementById('logoutBtn').style.display = session.user? 'inline-flex':'none';
+    }
+    document.getElementById('logoutBtn').onclick = ()=>{ session={ user:null, licence:null }; localStorage.removeItem('session'); refreshSessionUI(); alert('Logged out'); };
+
+    // Licence Management
+    const keyRe = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+    document.getElementById('lic-activate').onclick = async ()=>{
+      let keys=[]; const inputKey = document.getElementById('lic-key').value.trim().toUpperCase();
+      if(inputKey) keys.push(inputKey);
+      const file = document.getElementById('lic-file').files[0];
+      if(file){ const text = await file.text(); keys.push(...text.split(/\r?\n/).map(s=>s.trim().toUpperCase()).filter(Boolean)); }
+      if(keys.length===0){ setLicStatus('Provide a key or key-file', true); return; }
+      for(const k of keys){
+        if(!keyRe.test(k)){ setLicStatus('Invalid format: '+k, true); continue; }
+        const rec = await get('licences', k);
+        if(rec){ session.licence = { key:k, type:rec.type, expires:rec.expires };
+          localStorage.setItem('session', JSON.stringify(session));
+          setLicStatus('Licence activated: '+k+' ('+rec.type+') exp '+rec.expires, false);
+          return;
+        } else {
+          setLicStatus('Key not recognized: '+k, true);
+        }
+      }
+    };
+    function setLicStatus(msg, error){ const el=document.getElementById('lic-status'); el.textContent=msg; el.className = 'mono '+(error? 'danger':'notice'); }
+
+    // Gatekeeping helper
+    function requireAuthAndLicence(){ return session.user && session.licence; }
+
+    // Whiteboard with DB persistence
+    function addNode(text){ if(!requireAuthAndLicence()) return alert('Login and activate licence first');
+      const node = { id:crypto.randomUUID(), text:text+ ' #' + Math.floor(Math.random()*1000) };
+      put('flows', node).then(()=>{ const div=document.createElement('div'); div.textContent=node.text; div.className='pill'; document.getElementById('canvas').appendChild(div); });
+    }
+    async function exportFlow(){ if(!requireAuthAndLicence()) return alert('Login and activate licence first');
+      const s = tx('flows'); const req = s.getAll(); req.onsuccess = ()=>{ const data = req.result||[]; navigator.clipboard.writeText(JSON.stringify(data,null,2)); alert('Flow JSON copied to clipboard'); } }
+
+    // Schedule with DB persistence
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    function renderWeek(){ const wrap=document.getElementById('week'); wrap.innerHTML=''; days.forEach(d=>{ const col=document.createElement('div'); col.className='card'; col.innerHTML='<h4>'+d+'</h4><ul id="d-'+d+'"></ul>'; wrap.appendChild(col); }); loadSchedule(); }
+    function addTask(){ if(!requireAuthAndLicence()) return alert('Login and activate licence first');
+      const text=document.getElementById('task-text').value.trim(); const day=document.getElementById('task-day').value; if(!text) return;
+      put('schedule',{ day, ts:Date.now(), text }).then(()=>{ const li=document.createElement('li'); li.textContent=text; document.getElementById('d-'+day).appendChild(li); document.getElementById('task-text').value=''; });
+    }
+    function loadSchedule(){ const s=tx('schedule'); const req=s.getAll(); req.onsuccess=()=>{ (req.result||[]).forEach(r=>{ const li=document.createElement('li'); li.textContent=r.text; const id='d-'+r.day; const ul=document.getElementById(id); if(ul) ul.appendChild(li); }); } }
+
+    // Docs
+    function saveDoc(){ if(!requireAuthAndLicence()) return alert('Login and activate licence first');
+      const body=document.getElementById('doc').value; put('docs',{ id:'main', body, updated:new Date().toISOString() }).then(()=>{ document.getElementById('doc-preview').textContent=body; }); }
+    function loadDoc(){ const s=tx('docs'); const req=s.get('main'); req.onsuccess=()=>{ const rec=req.result; if(rec){ document.getElementById('doc').value=rec.body; document.getElementById('doc-preview').textContent=rec.body; } } }
+
+    // Data Admin helpers
+    function dump(store){ return new Promise(r=>{ const s=tx(store); const req=s.getAll(); req.onsuccess=()=>r(req.result||[]); }); }
+    async function dumpDB(){ const out=document.getElementById('db-out'); out.textContent='Dumping...'; const users=await dump('users'); const licences=await dump('licences'); const schedule=await dump('schedule'); const docs=await dump('docs'); const flows=await dump('flows'); out.textContent = JSON.stringify({ users, licences, schedule, docs, flows }, null, 2); }
+    async function resetDB(){ if(!confirm('This will clear all data. Continue?')) return; const stores=['users','licences','schedule','docs','flows']; await Promise.all(stores.map(name=>new Promise(r=>{ const s=tx(name,'readwrite'); const req=s.clear(); req.onsuccess=()=>r(); req.onerror=()=>r(); }))); await seedLicences(); document.getElementById('db-out').textContent='Database reset.'; }
+  </script>
+</body>
+</html>

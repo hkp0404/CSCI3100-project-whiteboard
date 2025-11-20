@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Fancy Whiteboard</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h1>📝 Fancy Whiteboard</h1>
+            <p style="text-align: center; color: #7f8c8d; margin-bottom: 2rem;">
+                Stage 1: Offline Drawing & Calendar
+            </p>
+            <div id="login-form" class="auth-form">
+                <h2>Login</h2>
+                <input type="text" id="login-username" placeholder="Username" class="form-input" autocomplete="username">
+                <input type="password" id="login-password" placeholder="Password" class="form-input" autocomplete="current-password">
+                <button id="login-btn" class="btn btn-primary btn-full">Login</button>
+                <p class="form-footer">
+                    Don't have an account? 
+                    <a href="#" id="show-register">Register here</a>
+                </p>
+            </div>
+            <div id="register-form" class="auth-form" style="display: none;">
+                <h2>Register</h2>
+                <input type="text" id="register-username" placeholder="Username" class="form-input" autocomplete="username">
+                <input type="email" id="register-email" placeholder="Email" class="form-input" autocomplete="email">
+                <input type="password" id="register-password" placeholder="Password (min 6 characters)" class="form-input" autocomplete="new-password">
+                <input type="password" id="register-confirm-password" placeholder="Confirm Password" class="form-input" autocomplete="new-password">
+                <button id="register-btn" class="btn btn-primary btn-full">Create Account</button>
+                <p class="form-footer">
+                    Already have an account? 
+                    <a href="#" id="show-login">Login here</a>
+                </p>
+            </div>
+            <div id="auth-message" class="message"></div>
+        </div>
+    </div>
+    <script src="js/utils.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <!-- Auth logic is loaded in auth.js file -->
+</body>
+</html>

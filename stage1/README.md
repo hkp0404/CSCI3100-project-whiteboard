@@ -3,8 +3,7 @@
 ## 🎨 Offline Drawing & Calendar Application
 
 **CSCI3100 Course Project** - Stage 1 Implementation  
-**Student:** Law Sau Ho (1155213041)  
-**Date:** November 2025
+
 
 ---
 
@@ -335,9 +334,7 @@ For educational purposes only.
 
 ## Contact
 
-**Student**: Law Sau Ho  
-**Student ID**: 1155213041  
-**Email**: lucaslawsauho@gmail.com  
+
 **GitHub**: [@I-am-Lucas-Law-Sau-Ho](https://github.com/I-am-Lucas-Law-Sau-Ho)
 
 ---

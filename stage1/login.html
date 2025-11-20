@@ -41,6 +41,84 @@
     <script src="js/utils.js"></script>
     <script src="js/database.js"></script>
     <script src="js/auth.js"></script>
-    <!-- Auth logic is loaded in auth.js file -->
+    <script>
+    // Enhanced Auth Page JS for feedback banners
+    document.addEventListener('DOMContentLoaded', () => {
+        const messageDiv = document.getElementById('auth-message');
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + (type || 'info');
+            messageDiv.style.display = 'block';
+            if (type === 'success') {
+                setTimeout(() => { messageDiv.style.display = 'none'; }, 1500);
+            }
+        }
+
+        // Reset and hide message
+        function clearMessage() {
+            messageDiv.style.display = 'none';
+        }
+
+        // Toggle forms
+        document.getElementById('show-register').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            clearMessage();
+        });
+        document.getElementById('show-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            clearMessage();
+        });
+
+        // Registration logic
+        document.getElementById('register-btn').addEventListener('click', async () => {
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            if (!username || !email || !password || !confirmPassword) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            const result = await AuthService.register(username, email, password);
+            if (result.success) {
+                showMessage(result.message, 'success');
+                setTimeout(() => {
+                    document.getElementById('register-form').style.display = 'none';
+                    document.getElementById('login-form').style.display = 'block';
+                }, 1400);
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+
+        // Login logic
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!username || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            const result = await AuthService.login(username, password);
+            if (result.success) {
+                showMessage(result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 700);
+            } else {
+                showMessage(result.message, 'error');
+            }
+        });
+    });
+    </script>
 </body>
 </html>

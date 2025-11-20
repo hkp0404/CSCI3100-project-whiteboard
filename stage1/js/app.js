@@ -1,4 +1,4 @@
-// app.js - Main Application Logic
+// app.js - Main Application Logic (with Undo/Reverse button integration)
 
 let drawingEngine;
 let calendarManager;
@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Are you sure you want to logout?')) {
             AuthService.logout();
         }
+    });
+    // Setup undo/reverse button
+    const undoBtn = document.getElementById('undo-btn');
+    if (undoBtn) undoBtn.addEventListener('click', () => {
+        drawingEngine.undo();
     });
 });
 function setupToolbar() {

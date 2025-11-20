@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy Whiteboard - Drawing</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/calendar.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Fancy Whiteboard</h1>
+            <div class="user-info">
+                <span id="username-display"></span>
+                <button id="logout-btn" class="btn btn-secondary">Logout</button>
+            </div>
+        </header>
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="whiteboard">Whiteboard</button>
+            <button class="tab-btn" data-tab="calendar">Calendar</button>
+        </div>
+        <div id="whiteboard-tab" class="tab-content active">
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button id="pen-tool" class="tool-btn active" title="Pen">✏️ Pen</button>
+                    <button id="eraser-tool" class="tool-btn" title="Eraser">🧹 Eraser</button>
+                    <button id="text-tool" class="tool-btn" title="Text">T Text</button>
+                </div>
+                <div class="tool-group">
+                    <label for="color-picker">Color:</label>
+                    <input type="color" id="color-picker" value="#000000">
+                </div>
+                <div class="tool-group">
+                    <label for="stroke-width">Width:</label>
+                    <input type="range" id="stroke-width" min="1" max="20" value="3">
+                    <span id="width-display">3</span>px
+                </div>
+                <div class="tool-group">
+                    <button id="clear-btn" class="btn btn-warning">Clear Canvas</button>
+                    <button id="save-btn" class="btn btn-primary">Save</button>
+                    <button id="load-btn" class="btn btn-primary">Load</button>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <canvas id="whiteboard-canvas"></canvas>
+            </div>
+        </div>
+        <div id="calendar-tab" class="tab-content">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prev-month" class="btn btn-secondary">← Previous</button>
+                    <h2 id="current-month"></h2>
+                    <button id="next-month" class="btn btn-secondary">Next →</button>
+                </div>
+                <div id="calendar-grid"></div>
+                <button id="add-event-btn" class="btn btn-primary">+ Add Event</button>
+                <div class="schedule-list">
+                    <h3>Upcoming Events</h3>
+                    <ul id="event-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="save-modal" class="modal">
+        <div class="modal-content">
+            <h2>Save Whiteboard</h2>
+            <input type="text" id="whiteboard-title" placeholder="Enter whiteboard title" class="form-input">
+            <div class="modal-actions">
+                <button id="confirm-save" class="btn btn-primary">Save</button>
+                <button id="cancel-save" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="load-modal" class="modal">
+        <div class="modal-content">
+            <h2>Load Whiteboard</h2>
+            <ul id="whiteboard-list"></ul>
+            <button id="cancel-load" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Event</h2>
+            <input type="text" id="event-title" placeholder="Event Title" class="form-input">
+            <textarea id="event-description" placeholder="Description (optional)" class="form-input" rows="3"></textarea>
+            <label for="event-date">Date:</label>
+            <input type="date" id="event-date" class="form-input">
+            <label for="event-start-time">Start Time:</label>
+            <input type="time" id="event-start-time" class="form-input">
+            <label for="event-end-time">End Time:</label>
+            <input type="time" id="event-end-time" class="form-input">
+            <div class="modal-actions">
+                <button id="save-event" class="btn btn-primary">Save Event</button>
+                <button id="cancel-event" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/utils.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/drawing.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

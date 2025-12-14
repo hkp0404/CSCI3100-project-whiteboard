@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy Whiteboard - Stage 2 (Real-Time Collaboration)</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/calendar.css">
+    <style>
+        .collaboration-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .session-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .session-id {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: monospace;
+        }
+
+        .online-users {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .user-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .user-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .copy-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .notification-banner {
+            background: #4ade80;
+            color: #1f2937;
+            padding: 12px 20px;
+            display: none;
+            gap: 10px;
+            align-items: center;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notification-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Collaboration Header -->
+    <div class="collaboration-header">
+        <div class="session-info">
+            <div>
+                <h1 style="margin: 0; font-size: 20px;">🎨 Collaborative Whiteboard</h1>
+            </div>
+            <div class="session-id" id="sessionDisplay">Loading session...</div>
+            <button class="copy-btn" onclick="copySessionId()">Copy ID</button>
+        </div>
+        
+        <div style="display: flex; gap: 15px;">
+            <div class="online-users" id="onlineUsers">👥 Users: Loading...</div>
+            <div class="connection-status" id="connectionStatus">
+                <div class="status-dot"></div>
+                <span id="connectionText">Connecting...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Banner -->
+    <div class="notification-banner" id="notificationBanner">
+        <span id="notificationText"></span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <!-- Drawing Tools -->
+            <div class="tool-section">
+                <button class="tool-btn active" data-tool="pen" title="Pen (P)" onclick="setTool('pen')">
+                    ✏️ Pen
+                </button>
+                <button class="tool-btn" data-tool="eraser" title="Eraser (E)" onclick="setTool('eraser')">
+                    🧹 Eraser
+                </button>
+                <button class="tool-btn" data-tool="text" title="Text (T)" onclick="setTool('text')">
+                    📝 Text
+                </button>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator"></div>
+
+            <!-- Color Picker -->
+            <div class="tool-section">
+                <label>Color:</label>
+                <input type="color" id="colorPicker" value="#000000" onchange="setColor(this.value)" title="Pick color">
+            </div>
+
+            <!-- Stroke Width -->
+            <div class="tool-section">
+                <label>Size:</label>
+                <input type="range" id="strokeWidth" min="1" max="50" value="3" onchange="setStrokeWidth(this.value)" title="Brush size" style="width: 100px;">
+                <span id="sizeDisplay">3</span>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator"></div>
+
+            <!-- Action Buttons -->
+            <div class="tool-section">
+                <button class="tool-btn" onclick="clearBoard()" title="Clear board">
+                    🗑️ Clear
+                </button>
+                <button class="tool-btn" onclick="undoAction()" title="Undo (Ctrl+Z)">
+                    ↶ Undo
+                </button>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator"></div>
+
+            <!-- Save & Logout -->
+            <div class="tool-section">
+                <button class="tool-btn" onclick="saveWhiteboard()" title="Save locally">
+                    💾 Save
+                </button>
+                <button class="tool-btn logout-btn" onclick="logout()" title="Logout">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Canvas and Calendar -->
+        <div class="content-area">
+            <!-- Canvas -->
+            <div class="canvas-section">
+                <canvas id="canvas"></canvas>
+            </div>
+
+            <!-- Calendar -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <h3>📅 Calendar</h3>
+                    <button class="btn-sm" onclick="toggleCalendarForm()">+ Event</button>
+                </div>
+                <div id="calendarContainer"></div>
+                <div id="eventForm" style="display: none; margin-top: 15px;">
+                    <input type="date" id="eventDate" placeholder="Date">
+                    <input type="time" id="eventTime" placeholder="Time">
+                    <input type="text" id="eventTitle" placeholder="Event title">
+                    <textarea id="eventDescription" placeholder="Description" rows="3"></textarea>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-sm btn-primary" onclick="addEvent()">Add Event</button>
+                        <button class="btn-sm" onclick="toggleCalendarForm()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/websocket-manager.js"></script>
+    <script src="js/notification-service.js"></script>
+    <script src="js/drawing.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        const SERVER_URL = 'http://localhost:3000';
+        let canvas = null;
+        let ctx = null;
+        let isDrawing = false;
+        let currentTool = 'pen';
+        let currentColor = '#000000';
+        let currentSize = 3;
+        let sessionId = null;
+        let userId = null;
+        let username = null;
+        let authToken = null;
+        let onlineUsers = new Set();
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            // Get auth token from localStorage
+            authToken = localStorage.getItem('authToken');
+            userId = localStorage.getItem('userId');
+            username = localStorage.getItem('username');
+
+            if (!authToken || !userId) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Get session from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            sessionId = urlParams.get('sessionId');
+            const mode = urlParams.get('mode');
+
+            // Setup canvas
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            // Initialize database
+            DatabaseManager.init();
+
+            // Setup canvas events
+            setupCanvasEvents();
+
+            // Initialize WebSocket
+            wsManager.serverURL = SERVER_URL;
+            await initializeWebSocket();
+
+            // Setup calendar
+            initializeCalendar();
+
+            // Setup notifications
+            await notificationService.requestPermission();
+
+            // Display session info
+            if (sessionId) {
+                document.getElementById('sessionDisplay').textContent = `Session: ${sessionId.substring(0, 12)}...`;
+            }
+
+            showNotification(`Welcome back, ${username}!`);
+        }
+
+        async function initializeWebSocket() {
+            if (!sessionId) {
+                // Offline mode
+                updateConnectionStatus(false);
+                showNotification('Running in offline mode', 'info');
+                return;
+            }
+
+            // Connect to server
+            wsManager.connect(authToken);
+
+            // Listen for connection
+            wsManager.on('connected', () => {
+                updateConnectionStatus(true);
+                wsManager.joinSession(sessionId, userId, username);
+                showNotification('Connected to server', 'success');
+            });
+
+            wsManager.on('disconnected', () => {
+                updateConnectionStatus(false);
+                showNotification('Disconnected from server', 'warning');
+            });
+
+            wsManager.on('session_joined', (data) => {
+                console.log('Joined session:', data);
+                onlineUsers.clear();
+                updateOnlineUsers(data.users);
+            });
+
+            wsManager.on('draw', (stroke) => {
+                redrawCanvas();
+                drawStroke(ctx, stroke);
+            });
+
+            wsManager.on('add_text', (text) => {
+                drawText(ctx, text);
+            });
+
+            wsManager.on('user_joined', (data) => {
+                updateOnlineUsers(data.users);
+                notificationService.notifyUserJoined(data.username);
+            });
+
+            wsManager.on('user_left', (data) => {
+                updateOnlineUsers(data.users);
+                notificationService.notifyUserLeft(data.username);
+            });
+
+            wsManager.on('schedule_event', (event) => {
+                addEventToCalendar(event);
+                showNotification(`New event: ${event.title}`, 'info');
+            });
+
+            wsManager.on('notification', (notification) => {
+                showNotification(notification.message, notification.type);
+            });
+
+            wsManager.on('offline', () => {
+                updateConnectionStatus(false);
+            });
+
+            wsManager.on('online', () => {
+                updateConnectionStatus(true);
+            });
+        }
+
+        function setupCanvasEvents() {
+            canvas.addEventListener('mousedown', (e) => {
+                if (currentTool === 'text') {
+                    handleTextInput(e);
+                    return;
+                }
+
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                if (currentTool === 'pen') {
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = currentColor;
+                    ctx.lineWidth = currentSize;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
+                } else if (currentTool === 'eraser') {
+                    ctx.clearRect(x - currentSize/2, y - currentSize/2, currentSize, currentSize);
+                }
+            });
+
+            canvas.addEventListener('mouseup', (e) => {
+                if (!isDrawing) return;
+                isDrawing = false;
+
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Send to server
+                if (sessionId) {
+                    const stroke = {
+                        x, y,
+                        color: currentColor,
+                        size: currentSize,
+                        tool: currentTool
+                    };
+                    wsManager.sendStroke(stroke);
+                }
+            });
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tool === tool);
+            });
+        }
+
+        function setColor(color) {
+            currentColor = color;
+            document.getElementById('colorPicker').value = color;
+        }
+
+        function setStrokeWidth(size) {
+            currentSize = parseInt(size);
+            document.getElementById('sizeDisplay').textContent = size;
+        }
+
+        function clearBoard() {
+            if (confirm('Clear the entire whiteboard? This cannot be undone.')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (sessionId) {
+                    wsManager.clearBoard();
+                }
+                showNotification('Whiteboard cleared', 'info');
+            }
+        }
+
+        function undoAction() {
+            showNotification('Undo feature coming soon', 'info');
+        }
+
+        function saveWhiteboard() {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `whiteboard_${new Date().toISOString().split('T')[0]}.png`;
+            link.click();
+            showNotification('Whiteboard saved', 'success');
+        }
+
+        function handleTextInput(e) {
+            const text = prompt('Enter text:');
+            if (!text) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.fillStyle = currentColor;
+            ctx.font = `${currentSize * 5}px Arial`;
+            ctx.fillText(text, x, y);
+
+            if (sessionId) {
+                wsManager.sendText({ x, y, text, fontSize: currentSize * 5, color: currentColor });
+            }
+        }
+
+        function redrawCanvas() {
+            // Redraw from saved state (if implemented with undo/redo)
+        }
+
+        function drawStroke(ctx, stroke) {
+            ctx.strokeStyle = stroke.color;
+            ctx.lineWidth = stroke.size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.arc(stroke.x, stroke.y, stroke.size / 2, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawText(ctx, text) {
+            ctx.fillStyle = text.color;
+            ctx.font = `${text.fontSize}px Arial`;
+            ctx.fillText(text.text, text.x, text.y);
+        }
+
+        function updateConnectionStatus(isConnected) {
+            const status = document.getElementById('connectionStatus');
+            const dot = status.querySelector('.status-dot');
+            const text = document.getElementById('connectionText');
+
+            if (isConnected) {
+                dot.classList.remove('offline');
+                text.textContent = 'Connected';
+            } else {
+                dot.classList.add('offline');
+                text.textContent = 'Offline';
+            }
+        }
+
+        function updateOnlineUsers(users) {
+            const onlineUsersDiv = document.getElementById('onlineUsers');
+            onlineUsersDiv.innerHTML = `👥 Users: ${users.length}`;
+        }
+
+        function copySessionId() {
+            if (!sessionId) return;
+            navigator.clipboard.writeText(sessionId).then(() => {
+                showNotification('Session ID copied to clipboard!', 'success');
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const banner = document.getElementById('notificationBanner');
+            const text = document.getElementById('notificationText');
+            text.textContent = message;
+            banner.className = `notification-banner show ${type}`;
+            setTimeout(() => banner.classList.remove('show'), 4000);
+        }
+
+        function toggleCalendarForm() {
+            const form = document.getElementById('eventForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addEvent() {
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const title = document.getElementById('eventTitle').value;
+            const description = document.getElementById('eventDescription').value;
+
+            if (!date || !time || !title) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const event = { date, time, title, description, userId };
+
+            if (sessionId) {
+                wsManager.sendScheduleEvent(event);
+            }
+
+            addEventToCalendar(event);
+            showNotification(`Event created: ${title}`, 'success');
+            toggleCalendarForm();
+            document.getElementById('eventForm').reset();
+        }
+
+        function addEventToCalendar(event) {
+            // Implementation for adding event to calendar display
+            // This would integrate with the calendar.js module
+        }
+
+        function initializeCalendar() {
+            // Initialize calendar from calendar.js
+            const calendarContainer = document.getElementById('calendarContainer');
+            if (calendarContainer && typeof drawCalendar === 'function') {
+                drawCalendar(calendarContainer);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                if (sessionId) {
+                    wsManager.leaveSession();
+                    wsManager.disconnect();
+                }
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'p') setTool('pen');
+            if (e.key === 'e') setTool('eraser');
+            if (e.key === 't') setTool('text');
+            if (e.ctrlKey && e.key === 'z') undoAction();
+            if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveWhiteboard(); }
+        });
+    </script>
+</body>
+</html>

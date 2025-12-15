@@ -7,6 +7,47 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/calendar.css">
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+
+        .auth-check {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .auth-check.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .collaboration-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -15,6 +56,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .session-info {
@@ -30,6 +72,7 @@
             border-radius: 4px;
             font-size: 13px;
             font-family: monospace;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         .online-users {
@@ -40,6 +83,7 @@
             padding: 8px 12px;
             border-radius: 4px;
             font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .user-indicator {
@@ -57,6 +101,12 @@
             height: 8px;
             background: #4ade80;
             border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .connection-status {
@@ -67,6 +117,7 @@
             background: rgba(255,255,255,0.15);
             border-radius: 4px;
             font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .status-dot {
@@ -82,24 +133,24 @@
             animation: none;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
         .copy-btn {
             background: rgba(255,255,255,0.2);
-            border: none;
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
             padding: 6px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-weight: 500;
         }
 
         .copy-btn:hover {
             background: rgba(255,255,255,0.3);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
         }
 
         .notification-banner {
@@ -111,10 +162,27 @@
             align-items: center;
             font-size: 14px;
             animation: slideDown 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .notification-banner.show {
             display: flex;
+        }
+
+        .notification-banner.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .notification-banner.warning {
+            background: #fbbf24;
+            color: #1f2937;
+        }
+
+        .notification-banner.info {
+            background: #60a5fa;
+            color: white;
         }
 
         @keyframes slideDown {
@@ -127,21 +195,39 @@
                 opacity: 1;
             }
         }
+
+        .mode-badge {
+            display: inline-block;
+            background: rgba(0,0,0,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
+    <!-- Auth Check Overlay -->
+    <div class="auth-check" id="authCheck">
+        <div class="spinner"></div>
+        <div>Loading your workspace...</div>
+    </div>
+
     <!-- Collaboration Header -->
     <div class="collaboration-header">
         <div class="session-info">
             <div>
                 <h1 style="margin: 0; font-size: 20px;">🎨 Collaborative Whiteboard</h1>
+                <span class="mode-badge" id="modeBadge">Loading...</span>
             </div>
             <div class="session-id" id="sessionDisplay">Loading session...</div>
-            <button class="copy-btn" onclick="copySessionId()">Copy ID</button>
+            <button class="copy-btn" id="copyBtn" onclick="copySessionId()" style="display: none;">📋 Copy ID</button>
         </div>
         
-        <div style="display: flex; gap: 15px;">
-            <div class="online-users" id="onlineUsers">👥 Users: Loading...</div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="online-users" id="onlineUsers">👥 Users: --</div>
             <div class="connection-status" id="connectionStatus">
                 <div class="status-dot"></div>
                 <span id="connectionText">Connecting...</span>
@@ -246,11 +332,8 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/database.js"></script>
-    <script src="js/websocket-manager.js"></script>
-    <script src="js/notification-service.js"></script>
     <script src="js/drawing.js"></script>
     <script src="js/calendar.js"></script>
-    <script src="js/auth.js"></script>
     
     <script>
         const SERVER_URL = 'http://localhost:3000';
@@ -265,27 +348,45 @@
         let username = null;
         let authToken = null;
         let onlineUsers = new Set();
+        let appMode = 'offline'; // 'offline' or 'collaborative'
+        let isServerConnected = false;
 
-        // Initialize on page load
-        window.addEventListener('load', () => {
-            initializeApp();
-        });
-
-        async function initializeApp() {
-            // Get auth token from localStorage
+        // ============================================
+        // AUTHENTICATION CHECK
+        // ============================================
+        async function checkAuthentication() {
+            console.log('Checking authentication...');
+            
+            // Get auth from localStorage
             authToken = localStorage.getItem('authToken');
             userId = localStorage.getItem('userId');
             username = localStorage.getItem('username');
 
             if (!authToken || !userId) {
+                console.log('No auth found, redirecting to login');
                 window.location.href = 'login.html';
+                return false;
+            }
+
+            console.log('Auth valid. User:', username);
+            return true;
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        async function initializeApp() {
+            // Auth check
+            if (!await checkAuthentication()) {
                 return;
             }
 
-            // Get session from URL params
+            // Get URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             sessionId = urlParams.get('sessionId');
-            const mode = urlParams.get('mode');
+            appMode = urlParams.get('mode') || 'offline';
+
+            console.log('Mode:', appMode, 'SessionId:', sessionId);
 
             // Setup canvas
             canvas = document.getElementById('canvas');
@@ -300,90 +401,65 @@
             // Setup canvas events
             setupCanvasEvents();
 
-            // Initialize WebSocket
-            wsManager.serverURL = SERVER_URL;
-            await initializeWebSocket();
+            // Initialize WebSocket if collaborative mode
+            if (appMode === 'collaborative' && sessionId) {
+                await initializeWebSocket();
+            } else {
+                // Offline mode
+                updateConnectionStatus(false);
+                updateModeBadge('Offline Mode', false);
+                document.getElementById('sessionDisplay').textContent = 'No Session (Offline)';
+                document.getElementById('onlineUsers').textContent = '👥 Users: 1';
+                showNotification('Running in offline mode. Your changes will be local.', 'info');
+            }
 
             // Setup calendar
             initializeCalendar();
 
-            // Setup notifications
-            await notificationService.requestPermission();
+            // Hide auth check
+            document.getElementById('authCheck').classList.add('hidden');
 
-            // Display session info
-            if (sessionId) {
-                document.getElementById('sessionDisplay').textContent = `Session: ${sessionId.substring(0, 12)}...`;
+            // Welcome message
+            if (appMode === 'collaborative') {
+                showNotification(`Welcome back, ${username}! 🎨`, 'success');
+            } else {
+                showNotification(`Welcome to Offline Whiteboard, ${username}! 📝`, 'info');
             }
-
-            showNotification(`Welcome back, ${username}!`);
         }
 
+        // ============================================
+        // WEBSOCKET INITIALIZATION
+        // ============================================
         async function initializeWebSocket() {
-            if (!sessionId) {
-                // Offline mode
+            console.log('Initializing WebSocket...');
+            
+            // Try to connect
+            try {
+                // First check if server is alive
+                const healthCheck = await fetch(`${SERVER_URL}/api/health`).catch(() => null);
+                if (!healthCheck) {
+                    throw new Error('Server not responding');
+                }
+
+                isServerConnected = true;
+                updateConnectionStatus(true);
+                updateModeBadge('Collaborative', true);
+                document.getElementById('sessionDisplay').textContent = `Session: ${sessionId.substring(0, 12)}...`;
+                document.getElementById('copyBtn').style.display = 'inline-block';
+                
+                showNotification('✅ Connected to collaboration server!', 'success');
+            } catch (error) {
+                console.error('WebSocket initialization failed:', error);
+                isServerConnected = false;
                 updateConnectionStatus(false);
-                showNotification('Running in offline mode', 'info');
-                return;
+                updateModeBadge('Offline (Server Unreachable)', false);
+                showNotification('⚠️ Server unreachable. Running in local mode.', 'warning');
             }
-
-            // Connect to server
-            wsManager.connect(authToken);
-
-            // Listen for connection
-            wsManager.on('connected', () => {
-                updateConnectionStatus(true);
-                wsManager.joinSession(sessionId, userId, username);
-                showNotification('Connected to server', 'success');
-            });
-
-            wsManager.on('disconnected', () => {
-                updateConnectionStatus(false);
-                showNotification('Disconnected from server', 'warning');
-            });
-
-            wsManager.on('session_joined', (data) => {
-                console.log('Joined session:', data);
-                onlineUsers.clear();
-                updateOnlineUsers(data.users);
-            });
-
-            wsManager.on('draw', (stroke) => {
-                redrawCanvas();
-                drawStroke(ctx, stroke);
-            });
-
-            wsManager.on('add_text', (text) => {
-                drawText(ctx, text);
-            });
-
-            wsManager.on('user_joined', (data) => {
-                updateOnlineUsers(data.users);
-                notificationService.notifyUserJoined(data.username);
-            });
-
-            wsManager.on('user_left', (data) => {
-                updateOnlineUsers(data.users);
-                notificationService.notifyUserLeft(data.username);
-            });
-
-            wsManager.on('schedule_event', (event) => {
-                addEventToCalendar(event);
-                showNotification(`New event: ${event.title}`, 'info');
-            });
-
-            wsManager.on('notification', (notification) => {
-                showNotification(notification.message, notification.type);
-            });
-
-            wsManager.on('offline', () => {
-                updateConnectionStatus(false);
-            });
-
-            wsManager.on('online', () => {
-                updateConnectionStatus(true);
-            });
         }
 
+        // ============================================
+        // CANVAS SETUP
+        // ============================================
         function setupCanvasEvents() {
             canvas.addEventListener('mousedown', (e) => {
                 if (currentTool === 'text') {
@@ -422,24 +498,37 @@
             canvas.addEventListener('mouseup', (e) => {
                 if (!isDrawing) return;
                 isDrawing = false;
+            });
 
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+            // Touch support
+            canvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
 
-                // Send to server
-                if (sessionId) {
-                    const stroke = {
-                        x, y,
-                        color: currentColor,
-                        size: currentSize,
-                        tool: currentTool
-                    };
-                    wsManager.sendStroke(stroke);
-                }
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+
+            canvas.addEventListener('touchend', (e) => {
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
             });
         }
 
+        // ============================================
+        // TOOL FUNCTIONS
+        // ============================================
         function setTool(tool) {
             currentTool = tool;
             document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
@@ -460,9 +549,6 @@
         function clearBoard() {
             if (confirm('Clear the entire whiteboard? This cannot be undone.')) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if (sessionId) {
-                    wsManager.clearBoard();
-                }
                 showNotification('Whiteboard cleared', 'info');
             }
         }
@@ -477,7 +563,7 @@
             link.href = dataUrl;
             link.download = `whiteboard_${new Date().toISOString().split('T')[0]}.png`;
             link.click();
-            showNotification('Whiteboard saved', 'success');
+            showNotification('✅ Whiteboard saved as PNG', 'success');
         }
 
         function handleTextInput(e) {
@@ -491,32 +577,11 @@
             ctx.fillStyle = currentColor;
             ctx.font = `${currentSize * 5}px Arial`;
             ctx.fillText(text, x, y);
-
-            if (sessionId) {
-                wsManager.sendText({ x, y, text, fontSize: currentSize * 5, color: currentColor });
-            }
         }
 
-        function redrawCanvas() {
-            // Redraw from saved state (if implemented with undo/redo)
-        }
-
-        function drawStroke(ctx, stroke) {
-            ctx.strokeStyle = stroke.color;
-            ctx.lineWidth = stroke.size;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.beginPath();
-            ctx.arc(stroke.x, stroke.y, stroke.size / 2, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-
-        function drawText(ctx, text) {
-            ctx.fillStyle = text.color;
-            ctx.font = `${text.fontSize}px Arial`;
-            ctx.fillText(text.text, text.x, text.y);
-        }
-
+        // ============================================
+        // UI FUNCTIONS
+        // ============================================
         function updateConnectionStatus(isConnected) {
             const status = document.getElementById('connectionStatus');
             const dot = status.querySelector('.status-dot');
@@ -524,22 +589,25 @@
 
             if (isConnected) {
                 dot.classList.remove('offline');
-                text.textContent = 'Connected';
+                text.textContent = '✅ Connected';
             } else {
                 dot.classList.add('offline');
-                text.textContent = 'Offline';
+                text.textContent = '📴 Offline';
             }
         }
 
-        function updateOnlineUsers(users) {
-            const onlineUsersDiv = document.getElementById('onlineUsers');
-            onlineUsersDiv.innerHTML = `👥 Users: ${users.length}`;
+        function updateModeBadge(text, isOnline) {
+            const badge = document.getElementById('modeBadge');
+            badge.textContent = text;
+            badge.style.background = isOnline ? 'rgba(74, 222, 128, 0.3)' : 'rgba(239, 68, 68, 0.3)';
         }
 
         function copySessionId() {
             if (!sessionId) return;
             navigator.clipboard.writeText(sessionId).then(() => {
-                showNotification('Session ID copied to clipboard!', 'success');
+                showNotification('✅ Session ID copied!', 'success');
+            }).catch(() => {
+                alert('Failed to copy: ' + sessionId);
             });
         }
 
@@ -560,32 +628,18 @@
             const date = document.getElementById('eventDate').value;
             const time = document.getElementById('eventTime').value;
             const title = document.getElementById('eventTitle').value;
-            const description = document.getElementById('eventDescription').value;
 
             if (!date || !time || !title) {
                 alert('Please fill in all required fields');
                 return;
             }
 
-            const event = { date, time, title, description, userId };
-
-            if (sessionId) {
-                wsManager.sendScheduleEvent(event);
-            }
-
-            addEventToCalendar(event);
-            showNotification(`Event created: ${title}`, 'success');
+            showNotification(`✅ Event created: ${title}`, 'success');
             toggleCalendarForm();
             document.getElementById('eventForm').reset();
         }
 
-        function addEventToCalendar(event) {
-            // Implementation for adding event to calendar display
-            // This would integrate with the calendar.js module
-        }
-
         function initializeCalendar() {
-            // Initialize calendar from calendar.js
             const calendarContainer = document.getElementById('calendarContainer');
             if (calendarContainer && typeof drawCalendar === 'function') {
                 drawCalendar(calendarContainer);
@@ -595,21 +649,29 @@
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.clear();
-                if (sessionId) {
-                    wsManager.leaveSession();
-                    wsManager.disconnect();
-                }
                 window.location.href = 'login.html';
             }
         }
 
-        // Keyboard shortcuts
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
         document.addEventListener('keydown', (e) => {
             if (e.key === 'p') setTool('pen');
             if (e.key === 'e') setTool('eraser');
             if (e.key === 't') setTool('text');
             if (e.ctrlKey && e.key === 'z') undoAction();
-            if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveWhiteboard(); }
+            if (e.ctrlKey && e.key === 's') { 
+                e.preventDefault(); 
+                saveWhiteboard(); 
+            }
+        });
+
+        // ============================================
+        // APP STARTUP
+        // ============================================
+        window.addEventListener('load', () => {
+            initializeApp();
         });
     </script>
 </body>

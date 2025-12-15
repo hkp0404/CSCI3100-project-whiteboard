@@ -1,678 +1,404 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fancy Whiteboard - Stage 2 (Real-Time Collaboration)</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/calendar.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #f5f5f5;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fancy Whiteboard - Stage 2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #f5f5f5;
+    }
 
-        .auth-check {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 9999;
-            flex-direction: column;
-            gap: 20px;
-            color: white;
-            text-align: center;
-        }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-        .auth-check.hidden {
-            display: none;
-        }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    .user-info {
+      font-size: 13px;
+      opacity: 0.9;
+    }
 
-        .collaboration-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      flex-wrap: wrap;
+    }
 
-        .session-info {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .session-id {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-family: monospace;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
+    .toolbar label {
+      font-size: 13px;
+      margin-right: 4px;
+      font-weight: 500;
+    }
 
-        .online-users {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+    .toolbar button {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
 
-        .user-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            font-size: 12px;
-        }
+    .toolbar button.active {
+      background: #667eea;
+      border-color: #667eea;
+      color: #fff;
+    }
 
-        .user-dot {
-            width: 8px;
-            height: 8px;
-            background: #4ade80;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
+    .toolbar button:hover:not(.active) {
+      background: #f5f5f5;
+    }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+    .toolbar-spacer {
+      flex: 1;
+    }
 
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 4px;
-            font-size: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+    input[type="color"] {
+      width: 40px;
+      height: 32px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #4ade80;
-            animation: pulse 2s infinite;
-        }
+    input[type="range"] {
+      width: 100px;
+      cursor: pointer;
+    }
 
-        .status-dot.offline {
-            background: #ef4444;
-            animation: none;
-        }
+    #main {
+      flex: 1;
+      display: flex;
+      padding: 8px;
+      gap: 8px;
+      min-height: 0;
+    }
 
-        .copy-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
+    #canvasContainer {
+      flex: 1;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+      position: relative;
+    }
 
-        .copy-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
+    #canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #fff;
+      cursor: crosshair;
+    }
 
-        .copy-btn:active {
-            transform: scale(0.95);
-        }
+    #side {
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-        .notification-banner {
-            background: #4ade80;
-            color: #1f2937;
-            padding: 12px 20px;
-            display: none;
-            gap: 10px;
-            align-items: center;
-            font-size: 14px;
-            animation: slideDown 0.3s ease;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+    .panel {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      padding: 12px;
+      font-size: 13px;
+      flex: 1;
+      overflow: auto;
+    }
 
-        .notification-banner.show {
-            display: flex;
-        }
+    .panel h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #333;
+    }
 
-        .notification-banner.error {
-            background: #ef4444;
-            color: white;
-        }
+    .panel p {
+      margin: 0 0 6px;
+      line-height: 1.4;
+      color: #666;
+    }
 
-        .notification-banner.warning {
-            background: #fbbf24;
-            color: #1f2937;
-        }
+    .status-line {
+      font-size: 12px;
+      color: #888;
+      padding: 6px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
 
-        .notification-banner.info {
-            background: #60a5fa;
-            color: white;
-        }
+    .notification {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
 
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+    .notification.show { 
+      opacity: 1; 
+      pointer-events: auto;
+    }
 
-        .mode-badge {
-            display: inline-block;
-            background: rgba(0,0,0,0.2);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-    </style>
+    @media (max-width: 768px) {
+      #main {
+        flex-direction: column;
+      }
+      #side {
+        width: 100%;
+        max-height: 200px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Auth Check Overlay -->
-    <div class="auth-check" id="authCheck">
-        <div class="spinner"></div>
-        <div>Loading your workspace...</div>
+
+<header>
+  <div>
+    <h1>🎨 Whiteboard - Stage 2 (Local Mode)</h1>
+  </div>
+  <div class="header-right">
+    <div class="user-info" id="userInfo"></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-group">
+    <button id="tool-pen" class="active">✏️ Pen</button>
+    <button id="tool-eraser">🧹 Eraser</button>
+  </div>
+
+  <div class="toolbar-group">
+    <label>Color:</label>
+    <input type="color" id="color" value="#000000">
+  </div>
+
+  <div class="toolbar-group">
+    <label>Size:</label>
+    <input type="range" id="size" min="1" max="40" value="4">
+    <span id="sizeLabel">4</span>
+  </div>
+
+  <div class="toolbar-spacer"></div>
+
+  <div class="toolbar-group">
+    <button id="btn-clear">🗑️ Clear</button>
+    <button id="btn-save">💾 Save PNG</button>
+    <button id="btn-logout" style="background: #fee; color: #c33;">🚪 Logout</button>
+  </div>
+</div>
+
+<div id="main">
+  <div id="canvasContainer">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="side">
+    <div class="panel">
+      <h3>ℹ️ About</h3>
+      <p>This is <strong>Stage 2</strong> running in <strong>local-only mode</strong>.</p>
+      <p>No server connection needed. All drawing is saved in your browser.</p>
+      <p>Draw, clear, save to PNG, and logout anytime.</p>
     </div>
-
-    <!-- Collaboration Header -->
-    <div class="collaboration-header">
-        <div class="session-info">
-            <div>
-                <h1 style="margin: 0; font-size: 20px;">🎨 Collaborative Whiteboard</h1>
-                <span class="mode-badge" id="modeBadge">Loading...</span>
-            </div>
-            <div class="session-id" id="sessionDisplay">Loading session...</div>
-            <button class="copy-btn" id="copyBtn" onclick="copySessionId()" style="display: none;">📋 Copy ID</button>
-        </div>
-        
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <div class="online-users" id="onlineUsers">👥 Users: --</div>
-            <div class="connection-status" id="connectionStatus">
-                <div class="status-dot"></div>
-                <span id="connectionText">Connecting...</span>
-            </div>
-        </div>
+    <div class="panel">
+      <h3>📊 Status</h3>
+      <div class="status-line">Mode: <strong>Local</strong></div>
+      <div class="status-line">Connection: <strong>None (Offline)</strong></div>
+      <div class="status-line">Users: <strong>1 (You)</strong></div>
     </div>
+  </div>
+</div>
 
-    <!-- Notification Banner -->
-    <div class="notification-banner" id="notificationBanner">
-        <span id="notificationText"></span>
-    </div>
+<div class="notification" id="notification"></div>
 
-    <!-- Main Content -->
-    <div class="main-container">
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <!-- Drawing Tools -->
-            <div class="tool-section">
-                <button class="tool-btn active" data-tool="pen" title="Pen (P)" onclick="setTool('pen')">
-                    ✏️ Pen
-                </button>
-                <button class="tool-btn" data-tool="eraser" title="Eraser (E)" onclick="setTool('eraser')">
-                    🧹 Eraser
-                </button>
-                <button class="tool-btn" data-tool="text" title="Text (T)" onclick="setTool('text')">
-                    📝 Text
-                </button>
-            </div>
+<script>
+  // ============================================
+  // AUTH CHECK: Redirect if not logged in
+  // ============================================
+  const authToken = localStorage.getItem('authToken');
+  const username  = localStorage.getItem('username') || 'Guest';
 
-            <!-- Separator -->
-            <div class="separator"></div>
+  if (!authToken) {
+    window.location.href = 'login.html';
+  }
 
-            <!-- Color Picker -->
-            <div class="tool-section">
-                <label>Color:</label>
-                <input type="color" id="colorPicker" value="#000000" onchange="setColor(this.value)" title="Pick color">
-            </div>
+  document.getElementById('userInfo').textContent = '👤 ' + username;
 
-            <!-- Stroke Width -->
-            <div class="tool-section">
-                <label>Size:</label>
-                <input type="range" id="strokeWidth" min="1" max="50" value="3" onchange="setStrokeWidth(this.value)" title="Brush size" style="width: 100px;">
-                <span id="sizeDisplay">3</span>
-            </div>
+  // ============================================
+  // CANVAS SETUP
+  // ============================================
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let tool = 'pen';
+  let color = document.getElementById('color').value;
+  let size  = parseInt(document.getElementById('size').value, 10);
 
-            <!-- Separator -->
-            <div class="separator"></div>
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width  = rect.width;
+    canvas.height = rect.height;
+  }
 
-            <!-- Action Buttons -->
-            <div class="tool-section">
-                <button class="tool-btn" onclick="clearBoard()" title="Clear board">
-                    🗑️ Clear
-                </button>
-                <button class="tool-btn" onclick="undoAction()" title="Undo (Ctrl+Z)">
-                    ↶ Undo
-                </button>
-            </div>
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-            <!-- Separator -->
-            <div class="separator"></div>
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return { x, y };
+  }
 
-            <!-- Save & Logout -->
-            <div class="tool-section">
-                <button class="tool-btn" onclick="saveWhiteboard()" title="Save locally">
-                    💾 Save
-                </button>
-                <button class="tool-btn logout-btn" onclick="logout()" title="Logout">
-                    🚪 Logout
-                </button>
-            </div>
-        </div>
+  function startDraw(e) {
+    drawing = true;
+    const { x, y } = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
 
-        <!-- Canvas and Calendar -->
-        <div class="content-area">
-            <!-- Canvas -->
-            <div class="canvas-section">
-                <canvas id="canvas"></canvas>
-            </div>
-
-            <!-- Calendar -->
-            <div class="calendar-section">
-                <div class="calendar-header">
-                    <h3>📅 Calendar</h3>
-                    <button class="btn-sm" onclick="toggleCalendarForm()">+ Event</button>
-                </div>
-                <div id="calendarContainer"></div>
-                <div id="eventForm" style="display: none; margin-top: 15px;">
-                    <input type="date" id="eventDate" placeholder="Date">
-                    <input type="time" id="eventTime" placeholder="Time">
-                    <input type="text" id="eventTitle" placeholder="Event title">
-                    <textarea id="eventDescription" placeholder="Description" rows="3"></textarea>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-sm btn-primary" onclick="addEvent()">Add Event</button>
-                        <button class="btn-sm" onclick="toggleCalendarForm()">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/database.js"></script>
-    <script src="js/drawing.js"></script>
-    <script src="js/calendar.js"></script>
+  function moveDraw(e) {
+    if (!drawing) return;
+    const { x, y } = getPos(e);
     
-    <script>
-        const SERVER_URL = 'http://localhost:3000';
-        let canvas = null;
-        let ctx = null;
-        let isDrawing = false;
-        let currentTool = 'pen';
-        let currentColor = '#000000';
-        let currentSize = 3;
-        let sessionId = null;
-        let userId = null;
-        let username = null;
-        let authToken = null;
-        let onlineUsers = new Set();
-        let appMode = 'offline'; // 'offline' or 'collaborative'
-        let isServerConnected = false;
+    if (tool === 'pen') {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    } else if (tool === 'eraser') {
+      ctx.clearRect(x - size/2, y - size/2, size, size);
+    }
+  }
 
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
-        async function checkAuthentication() {
-            console.log('Checking authentication...');
-            
-            // Get auth from localStorage
-            authToken = localStorage.getItem('authToken');
-            userId = localStorage.getItem('userId');
-            username = localStorage.getItem('username');
+  function endDraw() {
+    drawing = false;
+  }
 
-            if (!authToken || !userId) {
-                console.log('No auth found, redirecting to login');
-                window.location.href = 'login.html';
-                return false;
-            }
+  // Mouse events
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', moveDraw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
 
-            console.log('Auth valid. User:', username);
-            return true;
-        }
+  // Touch events
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e); });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(e); });
+  canvas.addEventListener('touchend', endDraw);
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        async function initializeApp() {
-            // Auth check
-            if (!await checkAuthentication()) {
-                return;
-            }
+  // ============================================
+  // TOOLBAR ACTIONS
+  // ============================================
+  document.getElementById('tool-pen').onclick = () => {
+    tool = 'pen';
+    document.getElementById('tool-pen').classList.add('active');
+    document.getElementById('tool-eraser').classList.remove('active');
+    notify('Pen tool selected');
+  };
 
-            // Get URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            sessionId = urlParams.get('sessionId');
-            appMode = urlParams.get('mode') || 'offline';
+  document.getElementById('tool-eraser').onclick = () => {
+    tool = 'eraser';
+    document.getElementById('tool-eraser').classList.add('active');
+    document.getElementById('tool-pen').classList.remove('active');
+    notify('Eraser tool selected');
+  };
 
-            console.log('Mode:', appMode, 'SessionId:', sessionId);
+  document.getElementById('color').oninput = e => { 
+    color = e.target.value;
+  };
 
-            // Setup canvas
-            canvas = document.getElementById('canvas');
-            ctx = canvas.getContext('2d');
-            
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+  document.getElementById('size').oninput = e => { 
+    size = parseInt(e.target.value, 10);
+    document.getElementById('sizeLabel').textContent = size;
+  };
 
-            // Initialize database
-            DatabaseManager.init();
+  document.getElementById('btn-clear').onclick = () => {
+    if (confirm('Clear the entire whiteboard?')) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      notify('✅ Whiteboard cleared');
+    }
+  };
 
-            // Setup canvas events
-            setupCanvasEvents();
+  document.getElementById('btn-save').onclick = () => {
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'whiteboard_' + new Date().toISOString().split('T')[0] + '.png';
+    a.click();
+    notify('✅ Whiteboard saved as PNG');
+  };
 
-            // Initialize WebSocket if collaborative mode
-            if (appMode === 'collaborative' && sessionId) {
-                await initializeWebSocket();
-            } else {
-                // Offline mode
-                updateConnectionStatus(false);
-                updateModeBadge('Offline Mode', false);
-                document.getElementById('sessionDisplay').textContent = 'No Session (Offline)';
-                document.getElementById('onlineUsers').textContent = '👥 Users: 1';
-                showNotification('Running in offline mode. Your changes will be local.', 'info');
-            }
+  document.getElementById('btn-logout').onclick = () => {
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+  };
 
-            // Setup calendar
-            initializeCalendar();
+  // ============================================
+  // NOTIFICATIONS
+  // ============================================
+  function notify(msg) {
+    const n = document.getElementById('notification');
+    n.textContent = msg;
+    n.classList.add('show');
+    setTimeout(() => n.classList.remove('show'), 2500);
+  }
 
-            // Hide auth check
-            document.getElementById('authCheck').classList.add('hidden');
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'p' || e.key === 'P') document.getElementById('tool-pen').click();
+    if (e.key === 'e' || e.key === 'E') document.getElementById('tool-eraser').click();
+    if (e.ctrlKey && e.key === 's') { e.preventDefault(); document.getElementById('btn-save').click(); }
+  });
 
-            // Welcome message
-            if (appMode === 'collaborative') {
-                showNotification(`Welcome back, ${username}! 🎨`, 'success');
-            } else {
-                showNotification(`Welcome to Offline Whiteboard, ${username}! 📝`, 'info');
-            }
-        }
+  notify('✅ Welcome to Whiteboard Stage 2!');
+</script>
 
-        // ============================================
-        // WEBSOCKET INITIALIZATION
-        // ============================================
-        async function initializeWebSocket() {
-            console.log('Initializing WebSocket...');
-            
-            // Try to connect
-            try {
-                // First check if server is alive
-                const healthCheck = await fetch(`${SERVER_URL}/api/health`).catch(() => null);
-                if (!healthCheck) {
-                    throw new Error('Server not responding');
-                }
-
-                isServerConnected = true;
-                updateConnectionStatus(true);
-                updateModeBadge('Collaborative', true);
-                document.getElementById('sessionDisplay').textContent = `Session: ${sessionId.substring(0, 12)}...`;
-                document.getElementById('copyBtn').style.display = 'inline-block';
-                
-                showNotification('✅ Connected to collaboration server!', 'success');
-            } catch (error) {
-                console.error('WebSocket initialization failed:', error);
-                isServerConnected = false;
-                updateConnectionStatus(false);
-                updateModeBadge('Offline (Server Unreachable)', false);
-                showNotification('⚠️ Server unreachable. Running in local mode.', 'warning');
-            }
-        }
-
-        // ============================================
-        // CANVAS SETUP
-        // ============================================
-        function setupCanvasEvents() {
-            canvas.addEventListener('mousedown', (e) => {
-                if (currentTool === 'text') {
-                    handleTextInput(e);
-                    return;
-                }
-
-                isDrawing = true;
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-            });
-
-            canvas.addEventListener('mousemove', (e) => {
-                if (!isDrawing) return;
-
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                if (currentTool === 'pen') {
-                    ctx.lineTo(x, y);
-                    ctx.strokeStyle = currentColor;
-                    ctx.lineWidth = currentSize;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.stroke();
-                } else if (currentTool === 'eraser') {
-                    ctx.clearRect(x - currentSize/2, y - currentSize/2, currentSize, currentSize);
-                }
-            });
-
-            canvas.addEventListener('mouseup', (e) => {
-                if (!isDrawing) return;
-                isDrawing = false;
-            });
-
-            // Touch support
-            canvas.addEventListener('touchstart', (e) => {
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent('mousedown', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            });
-
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent('mousemove', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            });
-
-            canvas.addEventListener('touchend', (e) => {
-                const mouseEvent = new MouseEvent('mouseup', {});
-                canvas.dispatchEvent(mouseEvent);
-            });
-        }
-
-        // ============================================
-        // TOOL FUNCTIONS
-        // ============================================
-        function setTool(tool) {
-            currentTool = tool;
-            document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tool === tool);
-            });
-        }
-
-        function setColor(color) {
-            currentColor = color;
-            document.getElementById('colorPicker').value = color;
-        }
-
-        function setStrokeWidth(size) {
-            currentSize = parseInt(size);
-            document.getElementById('sizeDisplay').textContent = size;
-        }
-
-        function clearBoard() {
-            if (confirm('Clear the entire whiteboard? This cannot be undone.')) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                showNotification('Whiteboard cleared', 'info');
-            }
-        }
-
-        function undoAction() {
-            showNotification('Undo feature coming soon', 'info');
-        }
-
-        function saveWhiteboard() {
-            const dataUrl = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = `whiteboard_${new Date().toISOString().split('T')[0]}.png`;
-            link.click();
-            showNotification('✅ Whiteboard saved as PNG', 'success');
-        }
-
-        function handleTextInput(e) {
-            const text = prompt('Enter text:');
-            if (!text) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            ctx.fillStyle = currentColor;
-            ctx.font = `${currentSize * 5}px Arial`;
-            ctx.fillText(text, x, y);
-        }
-
-        // ============================================
-        // UI FUNCTIONS
-        // ============================================
-        function updateConnectionStatus(isConnected) {
-            const status = document.getElementById('connectionStatus');
-            const dot = status.querySelector('.status-dot');
-            const text = document.getElementById('connectionText');
-
-            if (isConnected) {
-                dot.classList.remove('offline');
-                text.textContent = '✅ Connected';
-            } else {
-                dot.classList.add('offline');
-                text.textContent = '📴 Offline';
-            }
-        }
-
-        function updateModeBadge(text, isOnline) {
-            const badge = document.getElementById('modeBadge');
-            badge.textContent = text;
-            badge.style.background = isOnline ? 'rgba(74, 222, 128, 0.3)' : 'rgba(239, 68, 68, 0.3)';
-        }
-
-        function copySessionId() {
-            if (!sessionId) return;
-            navigator.clipboard.writeText(sessionId).then(() => {
-                showNotification('✅ Session ID copied!', 'success');
-            }).catch(() => {
-                alert('Failed to copy: ' + sessionId);
-            });
-        }
-
-        function showNotification(message, type = 'info') {
-            const banner = document.getElementById('notificationBanner');
-            const text = document.getElementById('notificationText');
-            text.textContent = message;
-            banner.className = `notification-banner show ${type}`;
-            setTimeout(() => banner.classList.remove('show'), 4000);
-        }
-
-        function toggleCalendarForm() {
-            const form = document.getElementById('eventForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function addEvent() {
-            const date = document.getElementById('eventDate').value;
-            const time = document.getElementById('eventTime').value;
-            const title = document.getElementById('eventTitle').value;
-
-            if (!date || !time || !title) {
-                alert('Please fill in all required fields');
-                return;
-            }
-
-            showNotification(`✅ Event created: ${title}`, 'success');
-            toggleCalendarForm();
-            document.getElementById('eventForm').reset();
-        }
-
-        function initializeCalendar() {
-            const calendarContainer = document.getElementById('calendarContainer');
-            if (calendarContainer && typeof drawCalendar === 'function') {
-                drawCalendar(calendarContainer);
-            }
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.clear();
-                window.location.href = 'login.html';
-            }
-        }
-
-        // ============================================
-        // KEYBOARD SHORTCUTS
-        // ============================================
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'p') setTool('pen');
-            if (e.key === 'e') setTool('eraser');
-            if (e.key === 't') setTool('text');
-            if (e.ctrlKey && e.key === 'z') undoAction();
-            if (e.ctrlKey && e.key === 's') { 
-                e.preventDefault(); 
-                saveWhiteboard(); 
-            }
-        });
-
-        // ============================================
-        // APP STARTUP
-        // ============================================
-        window.addEventListener('load', () => {
-            initializeApp();
-        });
-    </script>
 </body>
 </html>

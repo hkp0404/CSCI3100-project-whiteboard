@@ -18,72 +18,100 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             padding: 20px;
         }
 
         .card {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+            overflow: hidden;
         }
 
         .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
         .logo h1 {
             color: #333;
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 36px;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
         .logo p {
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .tabs {
             display: flex;
-            gap: 10px;
+            gap: 0;
             margin-bottom: 30px;
             border-bottom: 2px solid #eee;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            margin: -50px -40px 30px -40px;
+            padding: 0;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 12px 20px;
+            padding: 16px 20px;
             border: none;
             background: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: #999;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            color: #666;
+            background: rgba(102, 126, 234, 0.05);
         }
 
         .tab-btn.active {
             color: #667eea;
             border-bottom-color: #667eea;
+            background: white;
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         label {
@@ -91,7 +119,8 @@
             margin-bottom: 8px;
             color: #333;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
+            letter-spacing: 0.3px;
         }
 
         input[type="text"],
@@ -102,7 +131,8 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
         }
 
         input[type="text"]:focus,
@@ -110,18 +140,20 @@
         input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
+            background: white;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .btn {
             width: 100%;
-            padding: 12px 20px;
+            padding: 13px 20px;
             border: none;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            letter-spacing: 0.3px;
         }
 
         .btn-primary {
@@ -129,22 +161,38 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
         }
 
-        .btn-primary:active {
+        .btn-primary:active:not(:disabled) {
             transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
         }
 
         .status-message {
             margin-top: 15px;
-            padding: 12px 15px;
+            padding: 13px 15px;
             border-radius: 6px;
             font-size: 14px;
             display: none;
             animation: slideIn 0.3s ease;
+            font-weight: 500;
         }
 
         .status-message.success {
@@ -188,6 +236,7 @@
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #eee;
+            font-weight: 500;
         }
 
         .status-indicator {
@@ -195,20 +244,38 @@
             height: 8px;
             border-radius: 50%;
             background: #999;
+            animation: none;
         }
 
         .status-indicator.connected {
             background: #28a745;
+            animation: pulse 2s infinite;
         }
 
         .status-indicator.disconnected {
             background: #dc3545;
         }
 
+        .status-indicator.connecting {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         .session-section {
-            margin-top: 30px;
-            padding-top: 30px;
+            margin-top: 25px;
+            padding-top: 25px;
             border-top: 1px solid #eee;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .session-section.active {
+            display: block;
         }
 
         .session-section h3 {
@@ -216,6 +283,8 @@
             margin-bottom: 15px;
             font-size: 14px;
             font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
         }
 
         .button-group {
@@ -223,19 +292,14 @@
             gap: 10px;
         }
 
-        .btn-secondary {
+        .button-group .btn {
             flex: 1;
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
         }
 
         .input-group {
             display: flex;
             gap: 8px;
+            margin-bottom: 10px;
         }
 
         .input-group input {
@@ -244,17 +308,74 @@
 
         .loading {
             display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .offline-mode-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .offline-mode-warning.show {
+            display: block;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            display: inline-block;
+            width: 45%;
+            height: 1px;
+            background: #ddd;
+            vertical-align: middle;
+        }
+
+        .divider::before {
+            margin-right: 10px;
+        }
+
+        .divider::after {
+            margin-left: 10px;
+        }
+
+        .feature-list {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .feature-list span {
+            background: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -262,26 +383,31 @@
     <div class="container">
         <div class="card">
             <div class="logo">
-                <h1>🎨 Whiteboard</h1>
-                <p>Stage 2 - Real-Time Collaboration</p>
+                <h1>🎨</h1>
+                <h1 style="font-size: 28px; margin-top: -5px;">Whiteboard</h1>
+                <p>Real-Time Collaboration</p>
             </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-                <button class="tab-btn" onclick="switchTab('register')">Register</button>
+                <button class="tab-btn active" onclick="switchTab(event, 'login')">Login</button>
+                <button class="tab-btn" onclick="switchTab(event, 'register')">Register</button>
             </div>
 
             <!-- Login Tab -->
             <div id="login" class="tab-content active">
                 <form onsubmit="handleLogin(event)">
+                    <div class="offline-mode-warning" id="offlineModeWarning">
+                        ⚠️ Server offline. You can still use Stage 1 (offline mode) or try creating a local session.
+                    </div>
+
                     <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required placeholder="your@email.com">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" required placeholder="your@email.com" autocomplete="email">
                     </div>
 
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                        <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
                     </div>
 
                     <button type="submit" class="btn btn-primary" id="loginBtn">Login</button>
@@ -294,45 +420,68 @@
                 <form onsubmit="handleRegister(event)">
                     <div class="form-group">
                         <label for="registerUsername">Username</label>
-                        <input type="text" id="registerUsername" required placeholder="john_doe">
+                        <input type="text" id="registerUsername" required placeholder="john_doe" autocomplete="username">
                     </div>
 
                     <div class="form-group">
-                        <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" required placeholder="your@email.com">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" required placeholder="your@email.com" autocomplete="email">
                     </div>
 
                     <div class="form-group">
-                        <label for="registerPassword">Password</label>
-                        <input type="password" id="registerPassword" required placeholder="••••••••">
+                        <label for="registerPassword">Password (min. 6 chars)</label>
+                        <input type="password" id="registerPassword" required minlength="6" placeholder="••••••••" autocomplete="new-password">
                     </div>
 
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" required placeholder="••••••••">
+                        <input type="password" id="confirmPassword" required minlength="6" placeholder="••••••••" autocomplete="new-password">
                     </div>
 
-                    <button type="submit" class="btn btn-primary" id="registerBtn">Register</button>
+                    <button type="submit" class="btn btn-primary" id="registerBtn">Create Account</button>
                     <div class="status-message" id="registerMessage"></div>
                 </form>
             </div>
 
             <!-- Server Status -->
             <div class="server-status">
-                <div class="status-indicator" id="serverStatus"></div>
-                <span id="serverStatusText">Connecting to server...</span>
+                <div class="status-indicator" id="serverStatus" style="background: #ffc107;"></div>
+                <span id="serverStatusText">🔄 Checking server connection...</span>
             </div>
 
-            <!-- Session Management -->
-            <div class="session-section" id="sessionSection" style="display: none;">
-                <h3>Collaboration Session</h3>
+            <!-- Session Management (shown after login) -->
+            <div class="session-section" id="sessionSection">
+                <h3>Next: Choose Session Mode</h3>
+                
+                <button class="btn btn-primary" onclick="createNewSession()" style="margin-bottom: 10px;">
+                    ✨ Create New Collaborative Session
+                </button>
+                
+                <div class="divider">or</div>
+                
                 <div class="input-group">
-                    <input type="text" id="sessionInput" placeholder="Enter session ID or leave blank">
+                    <input type="text" id="sessionInput" placeholder="Paste session ID here" autocomplete="off">
                 </div>
-                <div class="button-group" style="margin-top: 10px;">
-                    <button class="btn btn-secondary" onclick="joinExistingSession()">Join Session</button>
-                    <button class="btn btn-primary" onclick="createNewSession()">Create New</button>
-                </div>
+                <button class="btn btn-secondary" onclick="joinExistingSession()">
+                    🔗 Join Existing Session
+                </button>
+                
+                <div class="divider">or</div>
+                
+                <button class="btn btn-secondary" onclick="useOfflineMode()">
+                    📖 Use Offline Mode (Stage 1)
+                </button>
+                
+                <button class="btn btn-secondary" onclick="logout()" style="margin-top: 5px; background: #f0f0f0;">
+                    🚪 Logout
+                </button>
+            </div>
+
+            <div class="feature-list" style="margin-top: 20px;">
+                <span>✓ Real-time sync</span>
+                <span>✓ Multi-user</span>
+                <span>✓ Offline support</span>
+                <span>✓ Notifications</span>
             </div>
         </div>
     </div>
@@ -345,52 +494,39 @@
         let userId = null;
         let username = null;
         let serverConnected = false;
+        let checkServerAttempts = 0;
 
-        // Initialize server connection
-        function initializeServer() {
-            updateServerStatus('Connecting...', false);
-            
-            // Try to connect to server
-            fetch(`${SERVER_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            }).then(() => {
-                // Server is reachable
-                updateServerStatus('Connected', true);
-                serverConnected = true;
-                initializeSocket();
-            }).catch(() => {
-                // Server is not reachable
+        // ============================================
+        // Server Connection Check
+        // ============================================
+        async function checkServerConnection() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/health`, {
+                    method: 'GET',
+                    timeout: 3000
+                }).catch(() => null);
+                
+                if (response) {
+                    updateServerStatus('Connected', true);
+                    serverConnected = true;
+                    document.getElementById('offlineModeWarning').classList.remove('show');
+                } else {
+                    throw new Error('No response');
+                }
+            } catch (error) {
                 updateServerStatus('Offline Mode', false);
                 serverConnected = false;
-            });
+                document.getElementById('offlineModeWarning').classList.add('show');
+            }
         }
 
-        // Initialize Socket.IO
-        function initializeSocket() {
-            if (!serverConnected) return;
+        // ============================================
+        // Tab Switching
+        // ============================================
+        function switchTab(event, tabName) {
+            event.preventDefault();
+            event.target.blur();
 
-            socket = io(SERVER_URL, {
-                reconnection: true,
-                reconnectionDelay: 1000,
-                reconnectionAttempts: 5
-            });
-
-            socket.on('connect', () => {
-                updateServerStatus('Connected', true);
-            });
-
-            socket.on('disconnect', () => {
-                updateServerStatus('Disconnected', false);
-            });
-
-            socket.on('connect_error', () => {
-                updateServerStatus('Connection Error', false);
-            });
-        }
-
-        // Switch between tabs
-        function switchTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -404,140 +540,267 @@
             event.target.classList.add('active');
         }
 
-        // Handle login
+        // ============================================
+        // LOGIN HANDLER (FIXED)
+        // ============================================
         async function handleLogin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             const loginBtn = document.getElementById('loginBtn');
             const loginMessage = document.getElementById('loginMessage');
 
+            // Validate inputs
+            if (!email || !password) {
+                showMessage(loginMessage, '❌ Please fill in all fields', 'error');
+                return;
+            }
+
             loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="loading"></span> Logging in...';
+            loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
 
             try {
+                if (!serverConnected) {
+                    // Offline mode - simulate login
+                    await new Promise(r => setTimeout(r, 1000)); // Simulate delay
+                    simulateOfflineLogin(email);
+                    return;
+                }
+
+                // Online mode - connect to server
                 const response = await fetch(`${SERVER_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password }),
+                    timeout: 5000
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    // ✅ CRITICAL FIX: Save auth data BEFORE showing session section
                     authToken = data.token;
                     userId = data.userId;
                     username = data.username;
 
-                    showMessage(loginMessage, `Welcome back, ${username}!`, 'success');
+                    // Save to localStorage
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userId', userId);
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('userEmail', email);
+
+                    showMessage(loginMessage, `✅ Welcome back, ${username}!`, 'success');
                     
                     // Show session section
                     setTimeout(() => {
-                        document.getElementById('sessionSection').style.display = 'block';
+                        document.getElementById('sessionSection').classList.add('active');
                         loginBtn.style.display = 'none';
+                        document.getElementById('loginEmail').style.display = 'none';
+                        document.getElementById('loginPassword').style.display = 'none';
                     }, 500);
                 } else {
-                    showMessage(loginMessage, data.error || 'Login failed', 'error');
+                    showMessage(loginMessage, `❌ ${data.error || 'Login failed'}`, 'error');
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = 'Login';
                 }
             } catch (error) {
-                showMessage(loginMessage, 'Server connection failed. Try offline mode.', 'error');
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = 'Login';
+                console.error('Login error:', error);
+                showMessage(loginMessage, '❌ Connection failed. Using offline mode.', 'error');
+                // Allow offline mode fallback
+                simulateOfflineLogin(email);
             }
         }
 
-        // Handle registration
+        // ============================================
+        // OFFLINE LOGIN (Fallback)
+        // ============================================
+        function simulateOfflineLogin(email) {
+            const loginBtn = document.getElementById('loginBtn');
+            const loginMessage = document.getElementById('loginMessage');
+            const username = email.split('@')[0]; // Use email prefix as username
+
+            // Save auth data for offline mode
+            authToken = 'offline_' + Date.now();
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('username', username);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('offlineMode', 'true');
+
+            showMessage(loginMessage, `✅ Welcome, ${username}! (Offline mode)`, 'success');
+            
+            setTimeout(() => {
+                document.getElementById('sessionSection').classList.add('active');
+                loginBtn.style.display = 'none';
+                document.getElementById('loginEmail').style.display = 'none';
+                document.getElementById('loginPassword').style.display = 'none';
+            }, 500);
+        }
+
+        // ============================================
+        // REGISTRATION HANDLER
+        // ============================================
         async function handleRegister(event) {
             event.preventDefault();
             
-            const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const registerBtn = document.getElementById('registerBtn');
             const registerMessage = document.getElementById('registerMessage');
 
+            // Validate inputs
+            if (!username || !email || !password) {
+                showMessage(registerMessage, '❌ Please fill in all fields', 'error');
+                return;
+            }
+
             if (password !== confirmPassword) {
-                showMessage(registerMessage, 'Passwords do not match', 'error');
+                showMessage(registerMessage, '❌ Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage(registerMessage, '❌ Password must be at least 6 characters', 'error');
                 return;
             }
 
             registerBtn.disabled = true;
-            registerBtn.innerHTML = '<span class="loading"></span> Creating account...';
+            registerBtn.innerHTML = '<span class="loading"></span>Creating account...';
 
             try {
+                if (!serverConnected) {
+                    // Offline mode - simulate registration
+                    await new Promise(r => setTimeout(r, 1000));
+                    simulateOfflineRegister(username, email, password);
+                    return;
+                }
+
                 const response = await fetch(`${SERVER_URL}/api/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify({ username, email, password }),
+                    timeout: 5000
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    // Save auth data
                     authToken = data.token;
                     userId = data.userId;
-                    username = data.username;
 
-                    showMessage(registerMessage, 'Account created! Switching to login...', 'success');
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userId', userId);
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('userEmail', email);
+
+                    showMessage(registerMessage, `✅ Account created! Welcome, ${username}!`, 'success');
                     
                     setTimeout(() => {
-                        document.getElementById('sessionSection').style.display = 'block';
+                        document.getElementById('sessionSection').classList.add('active');
                         registerBtn.style.display = 'none';
-                    }, 1500);
+                        document.getElementById('registerUsername').style.display = 'none';
+                        document.getElementById('registerEmail').style.display = 'none';
+                        document.getElementById('registerPassword').style.display = 'none';
+                        document.getElementById('confirmPassword').style.display = 'none';
+                    }, 500);
                 } else {
-                    showMessage(registerMessage, data.error || 'Registration failed', 'error');
+                    showMessage(registerMessage, `❌ ${data.error || 'Registration failed'}`, 'error');
                     registerBtn.disabled = false;
-                    registerBtn.innerHTML = 'Register';
+                    registerBtn.innerHTML = 'Create Account';
                 }
             } catch (error) {
-                showMessage(registerMessage, 'Server connection failed.', 'error');
+                console.error('Registration error:', error);
+                showMessage(registerMessage, '❌ Connection failed. Try offline mode.', 'error');
                 registerBtn.disabled = false;
-                registerBtn.innerHTML = 'Register';
+                registerBtn.innerHTML = 'Create Account';
             }
         }
 
-        // Create new session
+        // ============================================
+        // OFFLINE REGISTRATION (Fallback)
+        // ============================================
+        function simulateOfflineRegister(username, email, password) {
+            const registerBtn = document.getElementById('registerBtn');
+            const registerMessage = document.getElementById('registerMessage');
+
+            // Create account
+            authToken = 'offline_' + Date.now();
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('username', username);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('offlineMode', 'true');
+
+            showMessage(registerMessage, `✅ Account created! Welcome, ${username}! (Offline mode)`, 'success');
+            
+            setTimeout(() => {
+                document.getElementById('sessionSection').classList.add('active');
+                registerBtn.style.display = 'none';
+            }, 500);
+        }
+
+        // ============================================
+        // SESSION HANDLERS
+        // ============================================
         async function createNewSession() {
             if (!authToken) {
                 alert('Please login first');
                 return;
             }
 
+            if (!serverConnected) {
+                // Offline mode - generate local session
+                const sessionId = 'session_' + Math.random().toString(36).substr(2, 12);
+                redirectToWhiteboard(sessionId, 'offline');
+                return;
+            }
+
             try {
                 const response = await fetch(`${SERVER_URL}/api/sessions`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
                     body: JSON.stringify({ token: authToken })
                 });
 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    // Redirect to whiteboard with session
-                    window.location.href = `index.html?sessionId=${data.sessionId}&mode=collaborative`;
+                if (response.ok && data.sessionId) {
+                    redirectToWhiteboard(data.sessionId, 'collaborative');
                 } else {
-                    alert('Failed to create session: ' + (data.error || 'Unknown error'));
+                    alert('❌ Failed to create session: ' + (data.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Server error: ' + error.message);
+                console.error('Session creation error:', error);
+                alert('❌ Server error: ' + error.message);
             }
         }
 
-        // Join existing session
         async function joinExistingSession() {
-            const sessionId = document.getElementById('sessionInput').value;
+            const sessionId = document.getElementById('sessionInput').value.trim();
             
             if (!sessionId) {
-                alert('Please enter a session ID');
+                alert('❌ Please enter a session ID');
                 return;
             }
 
             if (!authToken) {
-                alert('Please login first');
+                alert('❌ Please login first');
+                return;
+            }
+
+            if (!serverConnected) {
+                alert('⚠️ Server is offline. Cannot join remote session.');
                 return;
             }
 
@@ -546,36 +809,82 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.location.href = `index.html?sessionId=${sessionId}&mode=collaborative`;
+                    redirectToWhiteboard(sessionId, 'collaborative');
                 } else {
-                    alert('Session not found: ' + (data.error || 'Unknown error'));
+                    alert('❌ Session not found: ' + (data.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Error joining session: ' + error.message);
+                alert('❌ Error joining session: ' + error.message);
             }
         }
 
-        // Update server status indicator
+        function useOfflineMode() {
+            // Redirect to Stage 1 offline mode
+            redirectToWhiteboard(null, 'offline');
+        }
+
+        function redirectToWhiteboard(sessionId, mode) {
+            // ✅ Build URL with session info
+            let url = 'index.html?mode=' + mode;
+            if (sessionId) {
+                url += '&sessionId=' + encodeURIComponent(sessionId);
+            }
+            
+            console.log('Redirecting to:', url);
+            // Small delay to ensure localStorage is written
+            setTimeout(() => {
+                window.location.href = url;
+            }, 100);
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // ============================================
+        // UI HELPERS
+        // ============================================
         function updateServerStatus(text, isConnected) {
             const indicator = document.getElementById('serverStatus');
             const statusText = document.getElementById('serverStatusText');
 
-            statusText.textContent = text;
-            indicator.classList.remove('connected', 'disconnected');
+            statusText.textContent = isConnected ? '✅ ' + text : '🔌 ' + text;
+            indicator.classList.remove('connected', 'disconnected', 'connecting');
             indicator.classList.add(isConnected ? 'connected' : 'disconnected');
         }
 
-        // Show message
         function showMessage(element, message, type) {
             element.textContent = message;
             element.className = `status-message ${type}`;
             element.style.display = 'block';
+            
+            // Auto-hide error messages after 5 seconds
+            if (type === 'error') {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            }
         }
 
-        // Initialize on load
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         window.addEventListener('load', () => {
-            initializeServer();
+            checkServerConnection();
+            
+            // Check if already logged in
+            const savedToken = localStorage.getItem('authToken');
+            if (savedToken) {
+                authToken = savedToken;
+                userId = localStorage.getItem('userId');
+                username = localStorage.getItem('username');
+                document.getElementById('sessionSection').classList.add('active');
+            }
         });
+
+        // Periodic server status check
+        setInterval(checkServerConnection, 10000);
     </script>
 </body>
 </html>

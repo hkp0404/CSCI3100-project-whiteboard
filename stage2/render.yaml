@@ -1,0 +1,21 @@
+# Render Blueprint for Fancy-Whiteboard
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: fancy-whiteboard
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd stage2 && npm install
+    startCommand: cd stage2 && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
+      - key: CORS_ORIGIN
+        value: '*'
+    healthCheckPath: /api/health

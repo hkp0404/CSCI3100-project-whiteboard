@@ -41,6 +41,25 @@
       opacity: 0.9;
     }
 
+    .connection-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+      margin-right: 4px;
+    }
+
+    .connection-status.online {
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
     .toolbar {
       display: flex;
       align-items: center;
@@ -126,6 +145,30 @@
       cursor: crosshair;
     }
 
+    .remote-cursor {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      pointer-events: none;
+      transition: transform 0.05s ease;
+    }
+
+    .remote-cursor-label {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      white-space: nowrap;
+      margin-top: 4px;
+    }
+
     #side {
       width: 280px;
       display: flex;
@@ -161,6 +204,20 @@
       padding: 6px;
       background: #f5f5f5;
       border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .participant-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .participant-item {
+      padding: 6px;
+      margin: 2px 0;
+      background: #f5f5f5;
+      border-radius: 4px;
+      font-size: 12px;
     }
 
     .notification {
@@ -199,9 +256,10 @@
 
 <header>
   <div>
-    <h1>🎨 Whiteboard - Stage 2 (Local Mode)</h1>
+    <h1>🎨 Whiteboard - Stage 2 <span id="modeIndicator">(Checking...)</span></h1>
   </div>
   <div class="header-right">
+    <div><span class="connection-status" id="connectionStatus"></span><span id="statusText">Connecting...</span></div>
     <div class="user-info" id="userInfo"></div>
   </div>
 </header>
@@ -228,38 +286,56 @@
   <div class="toolbar-group">
     <button id="btn-clear">🗑️ Clear</button>
     <button id="btn-save">💾 Save PNG</button>
-    <button id="btn-logout" style="background: #fee; color: #c33;">🚪 Logout</button>
+    <button id="btn-logout" style="background: #fee; color: #c33;">🚺 Logout</button>
   </div>
 </div>
 
 <div id="main">
   <div id="canvasContainer">
     <canvas id="canvas"></canvas>
+    <div id="remoteCursors"></div>
   </div>
   <div id="side">
     <div class="panel">
-      <h3>ℹ️ About</h3>
-      <p>This is <strong>Stage 2</strong> running in <strong>local-only mode</strong>.</p>
-      <p>No server connection needed. All drawing is saved in your browser.</p>
-      <p>Draw, clear, save to PNG, and logout anytime.</p>
+      <h3>ℹ️ Session Info</h3>
+      <p id="sessionInfo">Loading...</p>
+      <p id="sessionIdDisplay" style="font-family: monospace; font-size: 11px;"></p>
     </div>
     <div class="panel">
       <h3>📊 Status</h3>
-      <div class="status-line">Mode: <strong>Local</strong></div>
-      <div class="status-line">Connection: <strong>None (Offline)</strong></div>
-      <div class="status-line">Users: <strong>1 (You)</strong></div>
+      <div class="status-line">Mode: <strong id="displayMode">-</strong></div>
+      <div class="status-line">Connection: <strong id="displayConnection">-</strong></div>
+      <div class="status-line">Users: <strong id="displayUsers">-</strong></div>
+    </div>
+    <div class="panel">
+      <h3>👥 Participants</h3>
+      <ul class="participant-list" id="participantList">
+        <li class="participant-item">Waiting for participants...</li>
+      </ul>
     </div>
   </div>
 </div>
 
 <div class="notification" id="notification"></div>
 
+<!-- Load Socket.IO from CDN -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<!-- Load Configuration -->
+<script src="js/config.js"></script>
+
+<!-- Load Sync Client -->
+<script src="js/sync-client.js"></script>
+
+<!-- Main Application Script -->
 <script>
   // ============================================
-  // AUTH CHECK: Redirect if not logged in
+  // AUTH CHECK
   // ============================================
   const authToken = localStorage.getItem('authToken');
   const username  = localStorage.getItem('username') || 'Guest';
+  const userId    = localStorage.getItem('userId') || 'user_' + Date.now();
+  const sessionId = new URLSearchParams(window.location.search).get('session') || localStorage.getItem('currentSession');
 
   if (!authToken) {
     window.location.href = 'login.html';
@@ -276,6 +352,8 @@
   let tool = 'pen';
   let color = document.getElementById('color').value;
   let size  = parseInt(document.getElementById('size').value, 10);
+  let isOnlineMode = false;
+  let syncClient = null;
 
   function resizeCanvas() {
     const rect = canvas.parentElement.getBoundingClientRect();
@@ -293,9 +371,12 @@
     return { x, y };
   }
 
+  let lastPoint = null;
+
   function startDraw(e) {
     drawing = true;
     const { x, y } = getPos(e);
+    lastPoint = { x, y };
     ctx.beginPath();
     ctx.moveTo(x, y);
   }
@@ -311,13 +392,36 @@
       ctx.lineJoin = 'round';
       ctx.lineTo(x, y);
       ctx.stroke();
+
+      // Send to server if online
+      if (isOnlineMode && syncClient) {
+        syncClient.sendStroke({
+          from: lastPoint,
+          to: { x, y },
+          color,
+          size,
+          tool
+        }).catch(err => console.error('Send stroke error:', err));
+      }
     } else if (tool === 'eraser') {
       ctx.clearRect(x - size/2, y - size/2, size, size);
+
+      // Send erase action if online
+      if (isOnlineMode && syncClient) {
+        syncClient.sendErase({
+          x,
+          y,
+          size
+        }).catch(err => console.error('Send erase error:', err));
+      }
     }
+
+    lastPoint = { x, y };
   }
 
   function endDraw() {
     drawing = false;
+    lastPoint = null;
   }
 
   // Mouse events
@@ -357,9 +461,19 @@
     document.getElementById('sizeLabel').textContent = size;
   };
 
-  document.getElementById('btn-clear').onclick = () => {
+  document.getElementById('btn-clear').onclick = async () => {
     if (confirm('Clear the entire whiteboard?')) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Send clear to server if online
+      if (isOnlineMode && syncClient) {
+        try {
+          await syncClient.clearCanvas();
+        } catch (err) {
+          console.error('Clear canvas error:', err);
+        }
+      }
+      
       notify('✅ Whiteboard cleared');
     }
   };
@@ -375,10 +489,171 @@
 
   document.getElementById('btn-logout').onclick = () => {
     if (confirm('Are you sure you want to logout?')) {
+      if (syncClient) {
+        syncClient.leaveSession();
+        syncClient.disconnect();
+      }
       localStorage.clear();
       window.location.href = 'login.html';
     }
   };
+
+  // ============================================
+  // ONLINE MODE - SYNC CLIENT
+  // ============================================
+  async function initializeOnlineMode() {
+    try {
+      // Try to connect to server
+      syncClient = new SyncClient(API_BASE_URL);
+      await syncClient.connect();
+      
+      isOnlineMode = true;
+      updateUI('online');
+      notify('✅ Connected to server');
+
+      // Join session if we have one
+      if (sessionId) {
+        await syncClient.joinSession(sessionId, userId, username);
+        localStorage.setItem('currentSession', sessionId);
+        document.getElementById('sessionIdDisplay').textContent = 'Session: ' + sessionId;
+        notify('✅ Joined session');
+      }
+
+      // Setup event listeners
+      setupSyncListeners();
+    } catch (error) {
+      console.warn('Failed to connect to server, using local mode:', error);
+      isOnlineMode = false;
+      updateUI('local');
+      notify('⚠️ Running in local mode (no server)');
+    }
+  }
+
+  function setupSyncListeners() {
+    if (!syncClient) return;
+
+    // Handle remote strokes
+    syncClient.on('remote-stroke', (data) => {
+      const { strokeData, userId: remoteUserId } = data;
+      if (remoteUserId === userId) return; // Skip own strokes
+
+      ctx.strokeStyle = strokeData.color;
+      ctx.lineWidth = strokeData.size;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(strokeData.from.x, strokeData.from.y);
+      ctx.lineTo(strokeData.to.x, strokeData.to.y);
+      ctx.stroke();
+    });
+
+    // Handle remote erase
+    syncClient.on('remote-erase', (data) => {
+      const { eraseData, userId: remoteUserId } = data;
+      if (remoteUserId === userId) return;
+
+      ctx.clearRect(
+        eraseData.x - eraseData.size/2,
+        eraseData.y - eraseData.size/2,
+        eraseData.size,
+        eraseData.size
+      );
+    });
+
+    // Handle canvas clear
+    syncClient.on('canvas-cleared', (data) => {
+      if (data.userId === userId) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      notify('🗑️ Canvas cleared by ' + data.username);
+    });
+
+    // Handle user joined
+    syncClient.on('user-joined', (data) => {
+      notify('👋 ' + data.username + ' joined');
+      updateParticipantList(data.participants || []);
+    });
+
+    // Handle user left
+    syncClient.on('user-left', (data) => {
+      notify('👋 ' + data.username + ' left');
+      updateParticipantList(data.participants || []);
+    });
+
+    // Handle drawing state load
+    syncClient.on('drawing-state-loaded', (data) => {
+      // Replay actions
+      if (data.actions && data.actions.length > 0) {
+        data.actions.forEach(action => {
+          if (action.type === 'draw-stroke' || action.type === 'draw') {
+            // Render stroke
+          }
+        });
+      }
+      updateParticipantList(data.participants || []);
+    });
+
+    // Connection status
+    syncClient.on('connection-lost', () => {
+      updateUI('offline');
+      notify('❌ Connection lost');
+    });
+
+    syncClient.on('connection-established', () => {
+      updateUI('online');
+      notify('✅ Connection restored');
+    });
+  }
+
+  function updateUI(mode) {
+    const modeIndicator = document.getElementById('modeIndicator');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const statusText = document.getElementById('statusText');
+    const displayMode = document.getElementById('displayMode');
+    const displayConnection = document.getElementById('displayConnection');
+    const displayUsers = document.getElementById('displayUsers');
+
+    if (mode === 'online') {
+      modeIndicator.textContent = '(Online Mode)';
+      connectionStatus.classList.add('online');
+      statusText.textContent = 'Connected';
+      displayMode.textContent = 'Online';
+      displayConnection.textContent = 'Connected';
+      document.getElementById('sessionInfo').textContent = 'Real-time collaboration enabled. Multiple users can draw together.';
+    } else if (mode === 'local') {
+      modeIndicator.textContent = '(Local Mode)';
+      connectionStatus.classList.remove('online');
+      statusText.textContent = 'Local Only';
+      displayMode.textContent = 'Local';
+      displayConnection.textContent = 'None';
+      displayUsers.textContent = '1 (You)';
+      document.getElementById('sessionInfo').textContent = 'No server connection. Drawing is saved locally in your browser.';
+    } else if (mode === 'offline') {
+      connectionStatus.classList.remove('online');
+      statusText.textContent = 'Reconnecting...';
+      displayConnection.textContent = 'Reconnecting...';
+    }
+  }
+
+  function updateParticipantList(participants) {
+    const list = document.getElementById('participantList');
+    const displayUsers = document.getElementById('displayUsers');
+    
+    if (!participants || participants.length === 0) {
+      list.innerHTML = '<li class="participant-item">No other users</li>';
+      displayUsers.textContent = '1 (You)';
+      return;
+    }
+
+    list.innerHTML = '';
+    participants.forEach(p => {
+      const li = document.createElement('li');
+      li.className = 'participant-item';
+      li.textContent = p.username + (p.userId === userId ? ' (You)' : '');
+      list.appendChild(li);
+    });
+
+    displayUsers.textContent = participants.length;
+  }
 
   // ============================================
   // NOTIFICATIONS
@@ -390,11 +665,25 @@
     setTimeout(() => n.classList.remove('show'), 2500);
   }
 
+  // ============================================
+  // INITIALIZATION
+  // ============================================
+  window.addEventListener('load', () => {
+    initializeOnlineMode();
+  });
+
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if (e.key === 'p' || e.key === 'P') document.getElementById('tool-pen').click();
     if (e.key === 'e' || e.key === 'E') document.getElementById('tool-eraser').click();
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); document.getElementById('btn-save').click(); }
+  });
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    if (syncClient) {
+      syncClient.leaveSession();
+    }
   });
 
   notify('✅ Welcome to Whiteboard Stage 2!');

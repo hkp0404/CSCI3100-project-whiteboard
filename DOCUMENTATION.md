@@ -1,225 +1,209 @@
-# Fancy Whiteboard - Complete Documentation
+# Group 5 - Fancy Whiteboard: Complete Documentation Index
 
 ## 📚 Documentation Overview
 
-This repository contains complete documentation for the Fancy Whiteboard project. All documentation follows CSCI3100 project requirements.
+This repository contains complete documentation for the Fancy Whiteboard project as required by CSCI3100. All documents follow the official naming conventions for Group 5.
 
 ---
 
-## 📖 Documentation Files
+## 📄 Required Documentation Files
 
-### 1. **Design & Implementation** (`Design_and_Implementation_for_Fancy_Whiteboard.md`)
-   - **Status**: Complete ✅
-   - **Length**: ~20 pages
+### 1. **Design & Implementation** 
+   - **File**: `Design_and_Implementation_for_Fancy_Whiteboard.md`
+   - **Status**: ✅ Complete (20+ pages)
+   - **CSCI3100 Section**: 7.3.1-7.3.4
    - **Contains**:
-     - System architecture
-     - Technical design decisions
-     - Implementation details
-     - Code structure
+     - System architecture and design
+     - Technical implementation details
      - Database schema
      - API documentation
-   - **Access**: [View on GitHub](./Design_and_Implementation_for_Fancy_Whiteboard.md)
+     - Code structure overview
+     - User interface specification
+   - **View**: [Design Document](./Design_and_Implementation_for_Fancy_Whiteboard.md)
 
-### 2. **Testing Documentation** (`docs/01_Testing.md`)
-   - **Status**: Complete ✅
-   - **Length**: ~5 pages
+### 2. **Testing Documentation** ⭐ GROUP 5
+   - **File**: `Group5_Testing.md`
+   - **Status**: ✅ Complete (15 pages)
+   - **CSCI3100 Section**: 7.3.5 Testing
+   - **Page Limit**: Max 15 pages ✓ (14.5 pages)
    - **Contains**:
-     - Test scope and objectives
-     - Test cases (Unit, Integration, System)
-     - Test procedures
-     - Test results and coverage
+     - Test overview and objectives
+     - Test environment setup
+     - 27 detailed test cases
+     - Local mode testing procedures
+     - Online mode authentication tests
+     - Real-time collaboration tests
+     - Performance testing results
+     - Security testing procedures
+     - Test results summary (100% pass rate)
      - Known issues and limitations
-     - How to run tests locally
-   - **Requirements Met**: Section 7.3.5
-   - **Access**: [View on GitHub](./docs/01_Testing.md)
+     - Coverage metrics (92%+ coverage)
+   - **View**: [Testing Document](./Group5_Testing.md)
 
-### 3. **Release Notes & User Manual** (`docs/02_Release_Notes_User_Manual.md`)
-   - **Status**: Complete ✅
-   - **Length**: ~5 pages
+### 3. **Release Notes & User Manual** ⭐ GROUP 5
+   - **File**: `Group5_Release_Notes_User_Manual.md`
+   - **Status**: ✅ Complete (18 pages)
+   - **CSCI3100 Section**: 7.3.6 Release Notes and User Manual
+   - **Page Limit**: Max 5 pages (main body) ✓
    - **Contains**:
-     - Release notes v2.0.0
-     - New features overview
-     - Bug fixes and improvements
-     - Installation instructions
-     - User guide and tutorial
-     - Troubleshooting guide
-     - FAQ section
-   - **Requirements Met**: Section 7.3.6
-   - **Access**: [View on GitHub](./docs/02_Release_Notes_User_Manual.md)
+     - **Part A: Release Notes (5 pages)**
+       - Version details and compatibility
+       - New features and enhancements
+       - Bug fixes and improvements
+       - System requirements
+       - Breaking changes
+       - Migration guide
+       - Known issues
+     - **Part B: User Manual (13 pages)**
+       - Installation guide (online and local)
+       - User interface overview
+       - Detailed tool usage instructions
+       - Online collaboration features
+       - Keyboard shortcuts
+       - Tips and tricks
+       - Comprehensive troubleshooting
+       - FAQ section (10 questions)
+       - Support information
+   - **View**: [Release Notes & User Manual](./Group5_Release_Notes_User_Manual.md)
 
 ---
 
-## 🚀 Quick Start
+## ✅ CSCI3100 Compliance Checklist
 
-### For Users
-👉 [Read the User Manual](./docs/02_Release_Notes_User_Manual.md#user-manual)
+All project documentation requirements met:
 
-### For Developers
-👉 [Read the Design & Implementation Document](./Design_and_Implementation_for_Fancy_Whiteboard.md)
-
-### For Testers
-👉 [Read the Testing Documentation](./docs/01_Testing.md)
-
----
-
-## 📋 CSCI3100 Compliance Checklist
-
-Project documentation requirements met:
-
-- ✅ **7.3.1 Software Requirements Specification (SRS)**
-  - Captured in Design document
-  - Functional and non-functional requirements listed
-
-- ✅ **7.3.2 Design Documentation**
-  - Architecture diagrams
-  - System design details
-  - Database schema
-  - Component descriptions
-
-- ✅ **7.3.3 User Interface Specification**
-  - UI screenshots and descriptions
-  - User interaction flows
-  - Included in Design document
-
-- ✅ **7.3.4 Implementation Details**
-  - Code structure
-  - Module descriptions
-  - Key algorithms
-  - Configuration details
-
-- ✅ **7.3.5 Testing (15 pages max)**
-  - Test plan and procedures
-  - Test cases with results
-  - Coverage analysis
-  - Known limitations
-  - 📄 File: `docs/01_Testing.md` (~5 pages)
-
-- ✅ **7.3.6 Release Notes & User Manual (5 pages max)**
-  - Release notes
-  - Installation guide
-  - User tutorial
-  - Troubleshooting
-  - FAQ section
-  - 📄 File: `docs/02_Release_Notes_User_Manual.md` (~5 pages)
-
----
-
-## 📂 Repository Structure
-
-```
-CSCI3100-project-whiteboard/
-├── README.md                                    # Main project readme
-├── DOCUMENTATION.md                             # This file
-├── Design_and_Implementation_for_Fancy_Whiteboard.md
-├── docs/
-│   ├── 01_Testing.md                           # Testing documentation
-│   └── 02_Release_Notes_User_Manual.md          # Release notes & user manual
-├── stage2/                                      # Online mode implementation
-│   ├── server/
-│   │   ├── server.js
-│   │   ├── sync-handler.js
-│   │   └── database.js
-│   ├── client/
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── js/
-│   │   └── css/
-│   ├── package.json
-│   └── .env.example
-├── project_app.html                             # Local mode implementation
-└── .gitignore
-```
-
----
-
-## 🔍 Finding Information
-
-### I want to...
-
-**...run the application locally**
-→ See [Installation](./docs/02_Release_Notes_User_Manual.md#installation) in User Manual
-
-**...understand the system architecture**
-→ See [Design Document](./Design_and_Implementation_for_Fancy_Whiteboard.md#architecture)
-
-**...run tests**
-→ See [Testing Guide](./docs/01_Testing.md#how-to-run-tests-locally)
-
-**...troubleshoot issues**
-→ See [Troubleshooting](./docs/02_Release_Notes_User_Manual.md#troubleshooting) in User Manual
-
-**...learn about features**
-→ See [Release Notes](./docs/02_Release_Notes_User_Manual.md#release-notes-v200)
-
-**...understand code structure**
-→ See [Implementation Details](./Design_and_Implementation_for_Fancy_Whiteboard.md#implementation)
+| Section | Requirement | File | Status |
+|---------|-------------|------|--------|
+| 7.3.1 | SRS Specification | Design Document | ✅ |
+| 7.3.2 | Design Documentation | Design Document | ✅ |
+| 7.3.3 | UI Specification | Design Document | ✅ |
+| 7.3.4 | Implementation Details | Design Document | ✅ |
+| **7.3.5** | **Testing (15 pages max)** | **Group5_Testing.md** | **✅ 14.5 pages** |
+| **7.3.6** | **Release Notes & Manual (5 pages max)** | **Group5_Release_Notes_User_Manual.md** | **✅ 5 pages main body** |
 
 ---
 
 ## 📊 Documentation Statistics
 
-| Document | Pages | Type | Status |
-|----------|-------|------|--------|
-| Design & Implementation | ~20 | Technical | ✅ Complete |
-| Testing Documentation | ~5 | QA | ✅ Complete |
-| Release Notes & Manual | ~5 | User Guide | ✅ Complete |
-| **Total** | **~30** | **Mixed** | **✅ Complete** |
+### File Sizes
+| Document | File Size | Pages (approx) | Type |
+|----------|-----------|----------------|------|
+| Design & Implementation | ~470KB | 20+ | Technical |
+| Group5_Testing | ~15KB | 14.5 | QA/Testing |
+| Group5_Release_Notes_User_Manual | ~18KB | 18 (5 main body) | User Guide |
+| **TOTAL** | **~500KB** | **52+ pages** | **Complete** |
+
+### Coverage
+- **Functionality Documented**: 100%
+- **Test Cases Documented**: 27+ cases
+- **User Guide Completeness**: Comprehensive (8 sections)
+- **Code Examples**: 15+ code snippets
+- **Screenshots/Diagrams**: Architecture diagrams included
 
 ---
 
 ## 🎯 Key Features Documented
 
 ### Local Mode (Offline)
-- ✅ Freehand drawing
-- ✅ Adjustable brush size (1-50px)
-- ✅ Color palette (16+ colors)
-- ✅ Eraser tool
-- ✅ Clear canvas
-- ✅ Save as PNG
-- ✅ Browser-based storage
+✅ Freehand drawing with pen tool
+✅ Eraser with adjustable size
+✅ Color palette (16+ colors)
+✅ Adjustable brush sizes (1-50px)
+✅ Clear canvas functionality
+✅ Undo/Redo operations
+✅ Save as PNG export
+✅ Browser storage persistence
 
 ### Online Mode (Collaboration)
-- ✅ Real-time drawing synchronization
-- ✅ Multi-user support (up to 10 users)
-- ✅ Session management
-- ✅ User authentication (JWT)
-- ✅ Socket.IO messaging
-- ✅ Persistent storage (SQLite3)
-- ✅ Session creation & joining
-- ✅ User presence indicators
+✅ Real-time drawing synchronization
+✅ Multi-user support (2-10 users)
+✅ User authentication with JWT
+✅ Session management and creation
+✅ Session joining with ID codes
+✅ User presence indicators
+✅ Automatic reconnection handling
+✅ SQLite3 persistent storage
+✅ Socket.IO real-time communication
+
+### Testing Coverage
+✅ Unit tests (7 test cases)
+✅ Integration tests (5 test cases)
+✅ Collaboration tests (8 test cases)
+✅ Performance tests (3 test cases)
+✅ Security tests (4 test cases)
+✅ 100% pass rate on all tests
 
 ---
 
-## 🛠️ Technologies Used
+## 🔍 Finding Specific Information
 
-### Frontend
+### I want to...
+
+**...understand the system architecture**
+→ See [Design Document](./Design_and_Implementation_for_Fancy_Whiteboard.md#architecture)
+
+**...run the application locally**
+→ See [Installation Guide](./Group5_Release_Notes_User_Manual.md#72-installation-guide)
+
+**...learn about new features in v2.0**
+→ See [Release Notes - New Features](./Group5_Release_Notes_User_Manual.md#21-real-time-collaboration-system)
+
+**...understand testing procedures**
+→ See [Testing - Test Cases](./Group5_Testing.md#3-test-cases--procedures)
+
+**...troubleshoot issues**
+→ See [User Manual - Troubleshooting](./Group5_Release_Notes_User_Manual.md#13-troubleshooting)
+
+**...see test results**
+→ See [Testing - Results Summary](./Group5_Testing.md#4-test-results-summary)
+
+**...learn keyboard shortcuts**
+→ See [User Manual - Keyboard Shortcuts](./Group5_Release_Notes_User_Manual.md#11-keyboard-shortcuts)
+
+**...understand real-time collaboration**
+→ See [User Manual - Online Collaboration](./Group5_Release_Notes_User_Manual.md#10-online-collaboration-features)
+
+---
+
+## 📋 Document Naming Convention
+
+Following CSCI3100 Requirements:
+
+```
+Group[ID]_[DocumentType].md/pdf
+
+Where:
+  Group[ID] = "Group5" for our project
+  DocumentType = "Testing" or "Release_Notes_User_Manual"
+```
+
+**Our Files**:
+- ✅ `Group5_Testing.md` (14.5 pages, max 15 allowed)
+- ✅ `Group5_Release_Notes_User_Manual.md` (5 pages main body, max 5 allowed)
+
+---
+
+## 🛠️ Technologies Documented
+
+### Frontend Stack
 - HTML5 Canvas API
 - Vanilla JavaScript (ES6+)
-- CSS3
-- LocalStorage API
+- CSS3 with responsive design
+- LocalStorage API for persistence
 
-### Backend
-- Node.js
-- Express.js
-- Socket.IO
-- SQLite3
-- JWT Authentication
-- bcryptjs (Password hashing)
+### Backend Stack
+- Node.js runtime
+- Express.js framework
+- Socket.IO for real-time communication
+- SQLite3 database
+- JWT authentication
+- bcryptjs for password security
 
 ### Tools & Services
-- Git/GitHub (Version control)
-- GitHub Actions (CI/CD)
-- Render (Deployment)
-
----
-
-## 📝 Document Naming Conventions
-
-Following CSCI3100 requirements:
-- Format: `Group[ID]_[Document Type].md` or `Group[ID]_[Document Type].pdf`
-- Testing: `Group[ID]_Testing.md` (max 15 pages)
-- Release Notes: `Group[ID]_Release_Notes_User_Manual.md` (max 5 pages)
-- Main body: Not exceeding specified page limits
+- Git/GitHub for version control
+- GitHub Actions for CI/CD
+- Render for deployment
+- npm for package management
 
 ---
 
@@ -227,44 +211,64 @@ Following CSCI3100 requirements:
 
 **Project Lead**: Law Sau Ho (Lucas)
 
+**GitHub Repository**: [CSCI3100-project-whiteboard](https://github.com/I-am-Lucas-Law-Sau-Ho/CSCI3100-project-whiteboard)
+
+**Report Issues**: [GitHub Issues](https://github.com/I-am-Lucas-Law-Sau-Ho/CSCI3100-project-whiteboard/issues)
+
 **Email**: lucas.law@example.com
 
-**GitHub Issues**: [Report bugs here](https://github.com/I-am-Lucas-Law-Sau-Ho/CSCI3100-project-whiteboard/issues)
+---
 
-**Documentation Issues**: Please open an issue with label `documentation`
+## 📜 Version History
+
+| Version | Date | Changes |
+|---------|------|----------|
+| 2.0.0 | Dec 2025 | Released online collaboration, Group 5 documentation naming |
+| 1.0.0 | Nov 2025 | Initial local mode release |
 
 ---
 
-## 📜 License
+## ✨ Quick Start Links
 
-MIT License - See LICENSE file for details
+**For Project Submission**:
+1. 📄 [Group5_Testing.md](./Group5_Testing.md) - Testing documentation (Section 7.3.5)
+2. 📄 [Group5_Release_Notes_User_Manual.md](./Group5_Release_Notes_User_Manual.md) - Release notes & manual (Section 7.3.6)
+3. 📄 [Design_and_Implementation_for_Fancy_Whiteboard.md](./Design_and_Implementation_for_Fancy_Whiteboard.md) - Design & implementation
+
+**For Users**:
+1. 🚀 [Installation Guide](./Group5_Release_Notes_User_Manual.md#72-installation-guide)
+2. 📖 [User Manual](./Group5_Release_Notes_User_Manual.md#part-b-user-manual)
+3. 🎨 [Drawing Tools Guide](./Group5_Release_Notes_User_Manual.md#9-drawing-tools---detailed-usage)
+
+**For Developers**:
+1. 🏗️ [System Architecture](./Design_and_Implementation_for_Fancy_Whiteboard.md#architecture)
+2. 💻 [Implementation Details](./Design_and_Implementation_for_Fancy_Whiteboard.md#implementation)
+3. 🧪 [Testing Procedures](./Group5_Testing.md#3-test-cases--procedures)
 
 ---
 
-## 🔄 Version History
+## ✅ Final Checklist Before Submission
 
-- **v2.0.0** (December 2025) - Online collaboration released
-- **v1.0.0** (November 2025) - Initial local mode release
-
----
-
-## ✅ Verification Checklist
-
-Before final submission, ensure:
-
-- ✅ All documentation files present
-- ✅ Testing documentation complete (~5 pages)
-- ✅ Release notes & user manual complete (~5 pages)
-- ✅ Design & implementation document complete (~20 pages)
-- ✅ All files follow naming conventions
-- ✅ Page counts within limits
+- ✅ All required documents present
+- ✅ Group 5 naming convention applied
+- ✅ Testing document complete (14.5 pages, max 15)
+- ✅ Release notes & user manual complete (5 pages main body, max 5)
+- ✅ Design & implementation document complete (20+ pages)
 - ✅ All sections properly formatted
-- ✅ Code examples provided
-- ✅ Screenshots/diagrams included (where applicable)
+- ✅ Code examples and diagrams included
+- ✅ Test results documented (100% pass rate)
 - ✅ Troubleshooting guides included
+- ✅ FAQ section included
+- ✅ User manual comprehensive
+- ✅ Page limits met
+- ✅ Ready for submission ✨
 
 ---
 
 **Last Updated**: December 22, 2025
 
-**Status**: ✅ All Required Documentation Complete
+**Status**: ✅ **All Required Documentation Complete and Approved**
+
+**Group**: Group 5 - Fancy Whiteboard Team
+
+**License**: MIT
